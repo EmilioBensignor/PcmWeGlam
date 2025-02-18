@@ -10,7 +10,9 @@ export default defineNuxtConfig({
       callback: '/callback',
       exclude: [
         '/login',
-        '/register',
+        '/forgot-password',
+        '/forgot-password-confirmation',
+        '/reset-password',
       ]
     }
   },
