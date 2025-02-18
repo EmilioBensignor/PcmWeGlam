@@ -1,7 +1,8 @@
 <template>
     <main>
+        <Toast />
         <section class="w-full columnAlignCenter">
-            <h1>Resetear contraseña</h1>
+            <h1>Restablecer contraseña</h1>
             <form @submit.prevent="handleResetPassword" class="w-full formAuth columnAlignCenter">
                 <div class="formFieldsContainer">
                     <FormPasswordField id="password" label="Nueva contraseña" placeholder="********"
@@ -10,7 +11,11 @@
                         v-model="form.confirmPassword" :error="errors.confirmPassword"
                         @input="validateConfirmPassword" />
                 </div>
-                <p v-if="errorMsg" class="error-message">{{ errorMsg }}</p>
+                <div class="error center" v-if="errorMsg">
+                    <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+                    <span class="pi pi-exclamation-circle"></span>
+                    <p>{{ errorMsg }}</p>
+                </div>
                 <Button :loading="loading" :class="{ active: isValid }" class="primaryButton"
                     label="Actualizar contraseña" type="submit" />
             </form>
@@ -20,10 +25,13 @@
 
 <script setup>
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { useToast } from "primevue/usetoast";
 
 definePageMeta({
     layout: "auth",
 });
+
+const toast = useToast()
 
 const client = useSupabaseClient()
 const router = useRouter()
@@ -95,11 +103,20 @@ const handleResetPassword = async () => {
 
         if (error) throw error
 
-        router.push({
-            path: ROUTE_NAMES.LOGIN,
-        })
+        toast.add({
+            severity: 'success',
+            summary: '¡Éxito!',
+            detail: 'Tu contraseña se ha restablecido con éxito.',
+            life: 3000
+        });
+
+        setTimeout(() => {
+            router.push({
+                path: ROUTE_NAMES.LOGIN,
+            })
+        }, 3000)
     } catch (error) {
-        errorMsg.value = error.message || 'Error al actualizar la contraseña'
+        errorMsg.value = error.message || 'Error al restablecer la contraseña'
     } finally {
         loading.value = false
     }

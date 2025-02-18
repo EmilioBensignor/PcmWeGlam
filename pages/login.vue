@@ -4,7 +4,7 @@
             <h1>Iniciar sesión</h1>
             <form @submit.prevent="handleSignIn" class="w-full formAuth columnAlignCenter">
                 <div class="formFieldsContainer">
-                    <FormEmailField id="email" label="Email" placeholder="stevejobs" autocomplete="email"
+                    <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs" autocomplete="email"
                         v-model="form.email" :error="errors.email" @input="validateEmail" />
                     <FormPasswordField id="password" label="Contraseña" placeholder="********"
                         autocomplete="current-password" v-model="form.password" :error="errors.password"

@@ -25,10 +25,7 @@ export default defineNuxtConfig({
   },
   primevue: {
     components: {
-      include: ['Toast', 'SelectButton']
-    },
-    composables: {
-      include: ['useToast']
+      include: ['Toast']
     }
   },
   plugins: [

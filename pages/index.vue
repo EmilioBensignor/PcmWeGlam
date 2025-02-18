@@ -9,7 +9,6 @@
             <p>Ejercicios de kinesio</p>
             <p>Salir afuera</p>
             <p>Producto del pelo</p>
-            <button @click="signOut">Cerrar sesión</button>
         </section>
     </main>
 </template>
@@ -19,16 +18,4 @@ definePageMeta({
     middleware: 'auth'
 })
 const user = useSupabaseUser();
-const client = useSupabaseClient();
-const router = useRouter();
-
-async function signOut() {
-    try {
-        const { error } = await client.auth.signOut();
-        if (error) throw error;
-        router.push('/login')
-    } catch (error) {
-        console.error(error.message)
-    }
-}
 </script>
