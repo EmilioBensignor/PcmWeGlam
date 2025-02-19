@@ -1,24 +1,36 @@
 <template>
-    <main class="relative">
-        <h1>Productos</h1>
-        <NuxtLink to="#" class="primaryButton active">
-            Agregar nuevo
-        </NuxtLink>
+    <main>
+        <section class="w-full columnAlignCenter">
+            <h1>Productos</h1>
+            <NuxtLink to="#" class="primaryButton active">
+                Agregar nuevo
+            </NuxtLink>
+            <div v-if="productosStore.isLoading" class="text-center">
+                <p>Cargando productos...</p>
+            </div>
+            <div v-else-if="productosStore.error">
+                {{ productosStore.error }}
+            </div>
+            <!-- DataTable -->
+            <DataTableBase v-else-if="formattedProducts" :headings="headings" :data="formattedProducts"
+                :columns="tableColumns" :options="tableOptions" @edit="handleEdit" @delete="handleDelete" />
 
-        <DataTableBase v-if="productos" :headings="headings" :data="productos" :columns="tableColumns"
-            @edit="handleEdit" @delete="handleDelete" />
-
+            <!-- Empty state -->
+            <div v-else class="text-center py-8">
+                <p>No hay productos disponibles</p>
+            </div>
+        </section>
+        <!-- Dialogs -->
         <DialogConfirmation v-model:visible="deleteDialog"
-            :confirmation-message="`¿Estas seguro que queres eliminar ${selectedItem?.titulo}?`"
+            :confirmation-message="`¿Estás seguro que quieres eliminar ${selectedItem?.titulo}?`"
             @confirm="confirmDelete" />
-
         <DialogConfirmation v-model:visible="confirmationDialog"
             :confirmation-message="`Se ha eliminado correctamente ${deletedItemName}`" :show-actions="false" />
     </main>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProductosStore } from '~/store/productos'
 
 definePageMeta({
@@ -32,7 +44,7 @@ const selectedItem = ref(null)
 const deletedItemName = ref('')
 
 const headings = [
-    'Títul',
+    'Título',
     'Imagen',
     'Descripción',
     'Costo dólar',
@@ -47,14 +59,35 @@ const headings = [
 
 const tableColumns = [
     { data: 'titulo' },
-    { data: 'imagen' },
-    { data: 'descripcion' },
-    { data: 'costo_dolar' },
+    {
+        data: 'imagen',
+        render: (data) => data ? `<img src="${data}" alt="Producto" class="productImg" />` : 'Sin imagen'
+    },
+    {
+        data: 'descripcion',
+        render: (data) => `<div class="max-w-xs truncate">${data}</div>`
+    },
+    {
+        data: 'costo_dolar',
+        render: (data) => `$${Number(data).toFixed(2)}`
+    },
     { data: 'categoria.nombre' },
-    { data: 'destacado' },
-    { data: 'mas_vendido' },
-    { data: 'oculto' },
-    { data: 'promocion' },
+    {
+        data: 'destacado',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'mas_vendido',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'oculto',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'promocion',
+        render: (data) => data ? 'Si' : 'No'
+    },
     {
         data: null,
         render: (data, type, row) => `
@@ -73,47 +106,68 @@ const tableColumns = [
     }
 ]
 
+const tableOptions = {
+    pageLength: 10,
+    order: [[0, 'asc']],
+    responsive: true,
+    language: {
+        search: "_INPUT_",
+        searchPlaceholder: "Buscar...",
+        paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+        },
+        zeroRecords: "No se encontraron resultados",
+        emptyTable: "No hay datos disponibles"
+    }
+}
+
 const productos = computed(() => productosStore.getProductos)
+const formattedProducts = computed(() => {
+    if (!productos.value) return null
+    return productos.value.map(product => ({
+        ...product,
+        imagen: product.imagen || null
+    }))
+})
 
 const handleEdit = (id) => {
-    console.log('Editando producto:', id)
+    navigateTo(`/productos/editar/${id}`)
 }
 
 const handleDelete = (id) => {
     selectedItem.value = productos.value.find(item => item.id === id)
-    deleteDialog.value = true
+    if (selectedItem.value) {
+        deleteDialog.value = true
+    }
 }
 
-const confirmDelete = () => {
-    deletedItemName.value = selectedItem.value.titulo
-    console.log('Confirmada eliminación del producto:', selectedItem.value.id)
-    deleteDialog.value = false
+const confirmDelete = async () => {
+    if (selectedItem.value) {
+        try {
+            deletedItemName.value = selectedItem.value.titulo
+            // Aquí iría la lógica de eliminación
+            deleteDialog.value = false
+            confirmationDialog.value = true
+            await productosStore.fetchProductos() // Recargar datos
+        } catch (error) {
+            console.error('Error al eliminar producto:', error)
+        }
+    }
     selectedItem.value = null
-    confirmationDialog.value = true
 }
 
 onMounted(async () => {
-    await productosStore.fetchProductos()
+    if (!productosStore.productos.length) {
+        await productosStore.fetchProductos()
+    }
 })
 </script>
 
-<style scoped>
-.collectionActions {
-    width: 2.125rem;
-    height: 2.125rem;
-    position: absolute;
-    top: 1.5rem;
-    right: 1.25rem;
-    background: var(--light-gray-color);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
-
-@media (width >=992px) {
-    .collectionActions {
-        top: 2rem;
-        right: 5.625rem;
+<style>
+    .productImg {
+        width: 5rem;
     }
-}
 </style>
