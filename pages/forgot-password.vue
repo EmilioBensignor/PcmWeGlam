@@ -15,7 +15,11 @@
                     <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs@gmail.com"
                         v-model="form.email" :error="errors.email" @input="validateEmail" />
                 </div>
-                <p v-if="errorMsg" class="error-message">{{ errorMsg }}</p>
+                <div class="error center" v-if="errorMsg">
+                    <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+                    <span class="pi pi-exclamation-circle"></span>
+                    <p>{{ errorMsg }}</p>
+                </div>
                 <Button :loading="loading" :class="{ active: isValid }" class="primaryButton"
                     label="Restablecer contraseña" type="submit" />
             </form>

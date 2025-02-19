@@ -1,8 +1,9 @@
 <template>
     <main>
+        <Toast />
         <section class="w-full columnAlignCenter">
-            <h1>Iniciar sesión</h1>
-            <form @submit.prevent="handleSignIn" class="w-full formAuth columnAlignCenter">
+            <h1>Registrarse</h1>
+            <form @submit.prevent="signUp" class="w-full formAuth columnAlignCenter">
                 <div class="formFieldsContainer">
                     <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs" autocomplete="email"
                         v-model="form.email" :error="errors.email" @input="validateEmail" />
@@ -10,18 +11,14 @@
                         autocomplete="current-password" v-model="form.password" :error="errors.password"
                         @input="validatePassword" type="password" />
                 </div>
-                <NuxtLink :to="ROUTE_NAMES.FORGOT_PASSWORD" class="pSmall text-black">
-                    ¿Olvidaste tu contraseña?
-                </NuxtLink>
-                <NuxtLink :to="ROUTE_NAMES.REGISTER" class="pSmall text-black">
-                    Registrarse
-                </NuxtLink>
+                <NuxtLink :to="ROUTE_NAMES.LOGIN">Iniciar sesión</NuxtLink>
+
                 <div class="error center" v-if="errorMsg">
                     <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
                     <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>
-                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton" label="Ingresar"
+                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton" label="Registrarse"
                     type="submit" />
             </form>
         </section>
@@ -29,14 +26,15 @@
 </template>
 
 <script setup>
-import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
+import { useToast } from "primevue/usetoast";
 
 definePageMeta({
     layout: "auth",
 });
 
-const client = useSupabaseClient()
-const router = useRouter()
+const client = useSupabaseClient();
+const toast = useToast()
 
 const form = reactive({
     email: '',
@@ -50,6 +48,7 @@ const errors = reactive({
 
 const loading = ref(false)
 const errorMsg = ref('')
+const successMsg = ref('')
 
 const isValid = computed(() => {
     return !errors.email &&
@@ -63,6 +62,13 @@ const validateEmail = () => {
         errors.email = 'El email es requerido'
         return false
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(form.email)) {
+        errors.email = 'El email debe incluir un @ y un . (punto)'
+        return false
+    }
+
     errors.email = null
     return true
 }
@@ -72,11 +78,37 @@ const validatePassword = () => {
         errors.password = 'La contraseña es requerida'
         return false
     }
+
+    if (form.password.length < 8) {
+        errors.password = 'La contraseña debe tener al menos 8 caracteres'
+        return false
+    }
+
+    if (!/[a-z]/.test(form.password)) {
+        errors.password = 'La contraseña debe contener al menos una minúscula'
+        return false
+    }
+
+    if (!/[A-Z]/.test(form.password)) {
+        errors.password = 'La contraseña debe contener al menos una mayúscula'
+        return false
+    }
+
+    if (!/[0-9]/.test(form.password)) {
+        errors.password = 'La contraseña debe contener al menos un número'
+        return false
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password)) {
+        errors.password = 'La contraseña debe contener al menos un caracter especial'
+        return false
+    }
+
     errors.password = null
     return true
 }
 
-const handleSignIn = async () => {
+async function signUp() {
     loading.value = true
     errorMsg.value = ''
 
@@ -89,13 +121,22 @@ const handleSignIn = async () => {
     }
 
     try {
-        const { error } = await client.auth.signInWithPassword({
+        const { data, error } = await client.auth.signUp({
             email: form.email,
             password: form.password
-        })
+        });
 
-        if (error) throw error
-        router.push(ROUTE_NAMES.HOME)
+        if (error) throw error;
+
+        form.email = ''
+        form.password = ''
+
+        toast.add({
+            severity: 'success',
+            summary: '¡Éxito!',
+            detail: 'Tu cuenta se ha creado con éxito. Revisa tu correo electrónico para verificar tu cuenta.',
+            life: 5000
+        });
     } catch (error) {
         errorMsg.value = error.message
     } finally {
