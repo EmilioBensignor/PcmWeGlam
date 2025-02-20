@@ -32,12 +32,14 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useProductosStore } from '~/store/productos'
+import { useVariablesStore } from '~/store/variables'
 
 definePageMeta({
     middleware: "auth"
 })
 
 const productosStore = useProductosStore()
+const variablesStore = useVariablesStore()
 const deleteDialog = ref(false)
 const confirmationDialog = ref(false)
 const selectedItem = ref(null)
@@ -48,6 +50,7 @@ const headings = [
     'Imagen',
     'Descripción',
     'Costo dólar',
+    'Precio',
     'Categoría',
     'Destacado',
     'Más vendido',
@@ -67,43 +70,51 @@ const tableColumns = [
     },
     {
         data: 'descripcion',
-        render: (data) => `<div class="max-w-xs truncate">${data}</div>`
+        render: (data) => `<div class="descriptionColumn">${data}</div>`
     },
     {
         data: 'costo_dolar',
         render: (data) => `$${Number(data).toFixed(2)}`
     },
+    {
+        data: 'precio',
+        render: (data) => `$${Number(data).toFixed(2)}`
+    },
     { data: 'categoria.nombre' },
     {
         data: 'destacado',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => `<div class="columnBool">${data ? 'Si' : 'No'}</div>`
     },
     {
         data: 'mas_vendido',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => `<div class="columnBool">${data ? 'Si' : 'No'}</div>`
     },
     {
         data: 'oculto',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => `<div class="columnBool">${data ? 'Si' : 'No'}</div>`
     },
     {
         data: 'promocion',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => `<div class="columnBool">${data ? 'Si' : 'No'}</div>`
     },
     {
         data: null,
         render: (data, type, row) => `
-            <button class="edit" data-id="${row.id}">
-                <span></span>
-            </button>
+            <div class="columnActions">
+                <button class="edit" data-id="${row.id}">
+                    <span></span>
+                </button>
+            </div>
         `
     },
     {
         data: null,
         render: (data, type, row) => `
-            <button class="delete" data-id="${row.id}">
-                <span></span>
-            </button>
+            <div class="columnActions">
+                <button class="delete" data-id="${row.id}">
+                    <span></span>
+                </button>
+            </div>
         `
     }
 ]
@@ -128,10 +139,12 @@ const tableOptions = {
 
 const productos = computed(() => productosStore.getProductos)
 const formattedProducts = computed(() => {
-    if (!productos.value) return null
+    if (!productos.value || !variablesStore.variables.length) return null
+
     return productos.value.map(product => ({
         ...product,
-        imagen: product.imagen || null
+        imagen: product.imagen || null,
+        precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA
     }))
 })
 
@@ -162,14 +175,14 @@ const confirmDelete = async () => {
 }
 
 onMounted(async () => {
-    if (!productosStore.productos.length) {
-        await productosStore.fetchProductos()
-    }
+    // Cargar variables primero
+    await variablesStore.fetchVariables()
+    await productosStore.fetchProductos()
 })
 </script>
 
 <style>
-    .productImg {
-        width: 5rem;
-    }
+.productImg {
+    width: 5rem;
+}
 </style>
