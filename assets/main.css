@@ -450,6 +450,7 @@ form .p-togglebutton-checked {
 }
 
 .dt-layout-table {
+    width: 100%;
     overflow-x: scroll;
     margin: 2rem 0 1.75rem 0;
     padding: 0;
@@ -550,6 +551,10 @@ table.dataTable.display .edit span {
 
 table.dataTable.display .delete span {
     background-image: url('/images/icons/delete.svg');
+}
+
+table.dataTable .productImg {
+    width: 5rem;
 }
 
 .dt-paging nav {

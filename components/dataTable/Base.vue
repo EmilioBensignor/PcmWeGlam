@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full">
+    <div class="w-full max-w-screen">
         <table ref="dataTable" class="display">
             <thead>
                 <tr>
