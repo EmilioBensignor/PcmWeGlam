@@ -60,8 +60,6 @@ const headings = [
     'Eliminar'
 ]
 
-// TODO - Agregar precio
-
 const tableColumns = [
     { data: 'titulo' },
     {
