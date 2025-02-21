@@ -39,6 +39,29 @@ export const useProductosStore = defineStore('productos', {
             } finally {
                 this.loading = false
             }
+        },
+        async createProducto(productoData) {
+            this.loading = true
+            this.error = null
+            try {
+                const supabase = useSupabaseClient()
+                const { data, error } = await supabase
+                    .from('productos')
+                    .insert(productoData)
+                    .select()
+                    .single()
+
+                if (error) throw error
+                
+                await this.fetchProductos()
+                return data
+            } catch (error) {
+                this.error = error.message
+                console.error('Error creating producto:', error)
+                throw error
+            } finally {
+                this.loading = false
+            }
         }
     }
 })

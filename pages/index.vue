@@ -1,14 +1,16 @@
 <template>
     <main class="relative max-w-screen">
-        <h1>Productos</h1>
-        <NuxtLink to="#" class="primaryButton active">
-            Agregar nuevo
-        </NuxtLink>
-        <div v-if="productosStore.isLoading" class="text-center">
-            <p>Cargando productos...</p>
-        </div>
-        <DataTableBase v-else-if="formattedProducts" :headings="headings" :data="formattedProducts"
-            :columns="tableColumns" @edit="handleEdit" @delete="handleDelete" />
+        <section class="w-full columnAlignCenter">
+            <h1>Productos</h1>
+            <NuxtLink :to="ROUTE_NAMES.PRODUCT_CREATE" class="primaryButton active">
+                Agregar nuevo
+            </NuxtLink>
+            <div v-if="productosStore.isLoading" class="text-center">
+                <p>Cargando productos...</p>
+            </div>
+            <DataTableBase v-else-if="formattedProducts" :headings="headings" :data="formattedProducts"
+                :columns="tableColumns" @edit="handleEdit" @delete="handleDelete" />
+        </section>
         <DialogConfirmation v-model:visible="deleteDialog"
             :confirmation-message="`¿Estás seguro que quieres eliminar ${selectedItem?.titulo}?`"
             @confirm="confirmDelete" />
@@ -17,141 +19,137 @@
     </main>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
+import { useRouter } from 'vue-router'
+import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 
-export default {
-    middleware: 'auth',
+definePageMeta({
+    middleware: 'auth'
+})
 
-    data() {
-        return {
-            productosStore: useProductosStore(),
-            variablesStore: useVariablesStore(),
-            deleteDialog: false,
-            confirmationDialog: false,
-            selectedItem: null,
-            deletedItemName: '',
-            headings: [
-                'Título',
-                'Imagen',
-                'Descripción',
-                'Costo dólar',
-                'Precio',
-                'Categoría',
-                'Destacado',
-                'Más vendido',
-                'Oculto',
-                'Promoción',
-                'Editar',
-                'Eliminar'
-            ],
-            tableColumns: [
-                {
-                    data: 'titulo',
-                },
-                {
-                    data: 'imagen',
-                    render: (data) => data ? `<img src="${data}" alt="Producto" class="productImg" />` : 'Sin imagen'
-                },
-                {
-                    data: 'descripcion',
-                },
-                {
-                    data: 'costo_dolar',
-                    render: (data) => `$${Number(data).toFixed(2)}`
-                },
-                {
-                    data: 'precio',
-                    render: (data) => `$${Number(data).toFixed(2)}`
-                },
-                {
-                    data: 'categoria.nombre',
-                },
-                {
-                    data: 'destacado',
-                    render: (data) => data ? 'Si' : 'No'
-                },
-                {
-                    data: 'mas_vendido',
-                    render: (data) => data ? 'Si' : 'No'
-                },
-                {
-                    data: 'oculto',
-                    render: (data) => data ? 'Si' : 'No'
-                },
-                {
-                    data: 'promocion',
-                    render: (data) => data ? 'Si' : 'No'
-                },
-                {
-                    data: null,
-                    render: (data, type, row) => `
-                        <button class="edit" data-id="${row.id}">
-                            <span></span>
-                        </button>
-                    `
-                },
-                {
-                    data: null,
-                    render: (data, type, row) => `
-                        <button class="delete" data-id="${row.id}">
-                            <span></span>
-                        </button>
-                    `
-                }
-            ]
-        }
+const router = useRouter()
+const productosStore = useProductosStore()
+const variablesStore = useVariablesStore()
+
+const deleteDialog = ref(false)
+const confirmationDialog = ref(false)
+const selectedItem = ref(null)
+const deletedItemName = ref('')
+
+const headings = [
+    'Título',
+    'Imagen',
+    'Descripción',
+    'Costo dólar',
+    'Precio',
+    'Categoría',
+    'Destacado',
+    'Más vendido',
+    'Oculto',
+    'Promoción',
+    'Editar',
+    'Eliminar'
+]
+
+const tableColumns = [
+    {
+        data: 'titulo',
     },
-
-    computed: {
-        productos() {
-            return this.productosStore.getProductos
-        },
-
-        formattedProducts() {
-            if (!this.productos || !this.variablesStore.variables.length) return null
-
-            return this.productos.map(product => ({
-                ...product,
-                imagen: product.imagen || null,
-                precio: product.costo_dolar * this.variablesStore.DOLAR_WG * this.variablesStore.GANANCIA
-            }))
-        }
+    {
+        data: 'imagen',
+        render: (data) => data ? `<img src="${data}" alt="Producto" class="productImg" />` : 'Sin imagen'
     },
-
-    methods: {
-        handleEdit(id) {
-            this.$router.push(`/productos/editar/${id}`)
-        },
-
-        handleDelete(id) {
-            this.selectedItem = this.productos.find(item => item.id === id)
-            if (this.selectedItem) {
-                this.deleteDialog = true
-            }
-        },
-
-        async confirmDelete() {
-            if (this.selectedItem) {
-                try {
-                    this.deletedItemName = this.selectedItem.titulo
-                    // Aquí iría la lógica de eliminación
-                    this.deleteDialog = false
-                    this.confirmationDialog = true
-                    await this.productosStore.fetchProductos() // Recargar datos
-                } catch (error) {
-                    console.error('Error al eliminar producto:', error)
-                }
-            }
-            this.selectedItem = null
-        }
+    {
+        data: 'descripcion',
     },
+    {
+        data: 'costo_dolar',
+        render: (data) => `$${Number(data).toFixed(2)}`
+    },
+    {
+        data: 'precio',
+        render: (data) => `$${Number(data).toFixed(2)}`
+    },
+    {
+        data: 'categoria.nombre',
+    },
+    {
+        data: 'destacado',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'mas_vendido',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'oculto',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: 'promocion',
+        render: (data) => data ? 'Si' : 'No'
+    },
+    {
+        data: null,
+        render: (data, type, row) => `
+            <button class="edit" data-id="${row.id}">
+                <span></span>
+            </button>
+        `
+    },
+    {
+        data: null,
+        render: (data, type, row) => `
+            <button class="delete" data-id="${row.id}">
+                <span></span>
+            </button>
+        `
+    }
+]
 
-    async mounted() {
-        // Cargar variables primero
-        await this.variablesStore.fetchVariables()
-        await this.productosStore.fetchProductos()
+const productos = computed(() => productosStore.getProductos)
+
+const formattedProducts = computed(() => {
+    if (!productos.value || !variablesStore.variables.length) return null
+
+    return productos.value.map(product => ({
+        ...product,
+        imagen: product.imagen || null,
+        precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA
+    }))
+})
+
+const handleEdit = (id) => {
+    router.push(`/productos/editar/${id}`)
+}
+
+const handleDelete = (id) => {
+    selectedItem.value = productos.value.find(item => item.id === id)
+    if (selectedItem.value) {
+        deleteDialog.value = true
     }
 }
+
+const confirmDelete = async () => {
+    if (selectedItem.value) {
+        try {
+            deletedItemName.value = selectedItem.value.titulo
+            // Aquí iría la lógica de eliminación
+            deleteDialog.value = false
+            confirmationDialog.value = true
+            await productosStore.fetchProductos() // Recargar datos
+        } catch (error) {
+            console.error('Error al eliminar producto:', error)
+        }
+    }
+    selectedItem.value = null
+}
+
+onMounted(async () => {
+    await variablesStore.fetchVariables()
+    await productosStore.fetchProductos()
+})
 </script>

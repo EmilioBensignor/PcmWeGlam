@@ -16,6 +16,7 @@
     "@nuxt/image": "^1.9.0",
     "@nuxtjs/supabase": "^1.4.6",
     "@pinia/nuxt": "^0.10.1",
+    "@primeuix/themes": "^1.0.0-rc.1",
     "@primevue/nuxt-module": "^4.2.5",
     "datatables.net": "^2.2.2",
     "datatables.net-dt": "^2.2.2",
@@ -23,6 +24,7 @@
     "jquery": "^3.7.1",
     "nuxt": "^3.15.4",
     "pinia": "^3.0.1",
+    "primevue": "^4.2.5",
     "vue": "latest",
     "vue-router": "latest"
   },
