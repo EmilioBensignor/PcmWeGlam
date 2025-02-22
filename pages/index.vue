@@ -20,11 +20,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { useToast } from 'primevue/usetoast'
 
 definePageMeta({
     middleware: 'auth'
@@ -126,6 +127,8 @@ const handleEdit = (id) => {
     router.push(`/productos/editar/${id}`)
 }
 
+const { $toast } = useNuxtApp()
+
 const handleDelete = (id) => {
     selectedItem.value = productos.value.find(item => item.id === id)
     if (selectedItem.value) {
@@ -137,19 +140,37 @@ const confirmDelete = async () => {
     if (selectedItem.value) {
         try {
             deletedItemName.value = selectedItem.value.titulo
-            // Aquí iría la lógica de eliminación
+
+            if (selectedItem.value.imagen) {
+                const imagePath = selectedItem.value.imagen.split('/').pop()
+                await productosStore.deleteImage(imagePath)
+            }
+
+            await productosStore.deleteProducto(selectedItem.value.id)
+
             deleteDialog.value = false
-            confirmationDialog.value = true
-            await productosStore.fetchProductos() // Recargar datos
+
+            $toast.success(`El producto ${deletedItemName.value} ha sido eliminado`)
+
+            selectedItem.value = null
+            deletedItemName.value = ''
+
         } catch (error) {
             console.error('Error al eliminar producto:', error)
+            $toast.error('Error al eliminar el producto')
         }
     }
-    selectedItem.value = null
 }
 
 onMounted(async () => {
-    await variablesStore.fetchVariables()
-    await productosStore.fetchProductos()
+    await Promise.all([
+        variablesStore.fetchVariables(),
+        productosStore.fetchProductos()
+    ])
+
+    if (productosStore.lastAction === 'created') {
+        $toast.success('Producto creado correctamente')
+        productosStore.clearLastAction()
+    }
 })
 </script>

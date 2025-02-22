@@ -21,11 +21,8 @@ export const useCategoriasStore = defineStore('categorias', {
                     .order('nombre')
                 if (error) throw error
 
-                // Verificar la estructura de los datos
-                console.log('Categorías cargadas:', data)
                 this.categorias = data
             } catch (error) {
-                console.error('Error fetching categorias:', error)
                 this.error = error.message
             } finally {
                 this.loading = false

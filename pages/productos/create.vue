@@ -12,13 +12,13 @@
                     <FormTextField id="costo_dolar" label="Costo en dólares" type="number" step="0.01"
                         v-model="formData.costo_dolar" :error="errors.costo_dolar" />
                     <div class="formField column">
-                        <label for="categoria">Categorías</label>
-                        <Select id="categoria" v-model="formData.categoria_id" :options="categorias"
+                        <label for="categoria">Categoría</label>
+                        <Select inputId="categoria" id="categoria" v-model="formData.categoria" :options="categorias"
                             optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría"
                             class="w-full" />
-                        <div class="error" v-if="errors.categoria_id">
+                        <div class="error" v-if="errors.categoria">
                             <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
-                            <p>{{ errors.categoria_id }}</p>
+                            <p>{{ errors.categoria }}</p>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                         data-off="Desactivado" />
                 </div>
                 <div class="formActions wrapCenter">
-                    <NuxtLink :to="ROUTE_NAMES.PRODUCTS" class="primaryButton">Cancelar</NuxtLink>
+                    <NuxtLink :to="ROUTE_NAMES.HOME" class="primaryButton">Cancelar</NuxtLink>
                     <button type="submit" class="primaryButton active">Crear</button>
                 </div>
             </form>
@@ -46,6 +46,7 @@ import { useProductosStore } from '~/store/productos'
 import { useCategoriasStore } from '~/store/categorias'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 import { useToast } from 'primevue/usetoast'
+import { formatNumberForDB } from '~/utils/numberFormat'
 
 definePageMeta({
     middleware: 'auth'
@@ -64,7 +65,7 @@ const formData = reactive({
     titulo: '',
     descripcion: '',
     costo_dolar: '',
-    categoria_id: null,
+    categoria: null,
     destacado: false,
     mas_vendido: false,
     promocion: false,
@@ -75,7 +76,7 @@ const errors = reactive({
     titulo: null,
     descripcion: null,
     costo_dolar: null,
-    categoria_id: null
+    categoria: null
 })
 
 onMounted(async () => {
@@ -104,20 +105,35 @@ const validateForm = () => {
     if (!formData.titulo) {
         errors.titulo = 'El título es requerido'
         isValid = false
+    } else if (formData.titulo.length < 5) {
+        errors.titulo = 'El título debe tener al menos 5 caracteres'
+        isValid = false
+    } else if (formData.titulo.length > 20) {
+        errors.titulo = 'El título no puede exceder los 20 caracteres'
+        isValid = false
     }
 
     if (!formData.descripcion) {
         errors.descripcion = 'La descripción es requerida'
         isValid = false
-    }
-
-    if (!formData.costo_dolar || formData.costo_dolar <= 0) {
-        errors.costo_dolar = 'Ingrese un costo válido'
+    } else if (formData.descripcion.length < 10) {
+        errors.descripcion = 'La descripción debe tener al menos 10 caracteres'
+        isValid = false
+    } else if (formData.descripcion.length > 200) {
+        errors.descripcion = 'La descripción no puede exceder los 200 caracteres'
         isValid = false
     }
 
-    if (!formData.categoria_id) {
-        errors.categoria_id = 'Seleccione una categoría'
+    if (!formData.costo_dolar) {
+        errors.costo_dolar = 'El costo es requerido'
+        isValid = false
+    } else if (isNaN(Number(formData.costo_dolar)) || Number(formData.costo_dolar) <= 0) {
+        errors.costo_dolar = 'Ingrese un costo válido mayor a 0'
+        isValid = false
+    }
+
+    if (!formData.categoria) {
+        errors.categoria = 'Seleccione una categoría'
         isValid = false
     }
 
@@ -127,21 +143,21 @@ const validateForm = () => {
 const handleSubmit = async () => {
     if (validateForm()) {
         try {
-            await productosStore.createProducto(formData)
-            toast.add({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: 'Producto creado correctamente',
-                life: 3000
-            })
-            router.push({ name: ROUTE_NAMES.PRODUCTS })
+            const formattedData = {
+                ...formData,
+                costo_dolar: formatNumberForDB(formData.costo_dolar)
+            }
+
+            if (formattedData.costo_dolar === null) {
+                errors.costo_dolar = 'Ingrese un número válido'
+                return
+            }
+
+            await productosStore.createProducto(formattedData)
+            await navigateTo('/')
         } catch (error) {
-            toast.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Error al crear el producto',
-                life: 3000
-            })
+            const { $toast } = useNuxtApp()
+            $toast.error('Error al crear el producto')
         }
     }
 }

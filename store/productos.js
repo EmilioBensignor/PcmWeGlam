@@ -2,7 +2,8 @@ export const useProductosStore = defineStore('productos', {
     state: () => ({
         productos: [],
         loading: false,
-        error: null
+        error: null,
+        lastAction: null
     }),
 
     getters: {
@@ -10,6 +11,9 @@ export const useProductosStore = defineStore('productos', {
         isLoading: (state) => state.loading,
         getProductosByCategoria: (state) => (categoriaSlug) => {
             return state.productos.filter(producto => producto.categoria?.slug === categoriaSlug)
+        },
+        getProductoById: (state) => (id) => {
+            return state.productos.find(producto => producto.id === id)
         }
     },
 
@@ -29,6 +33,8 @@ export const useProductosStore = defineStore('productos', {
                             slug
                         )
                     `)
+                    .order('created_at', { ascending: false })
+
                 if (error) throw error
 
                 this.productos = data.filter(producto => !producto.oculto)
@@ -40,6 +46,7 @@ export const useProductosStore = defineStore('productos', {
                 this.loading = false
             }
         },
+
         async createProducto(productoData) {
             this.loading = true
             this.error = null
@@ -52,8 +59,9 @@ export const useProductosStore = defineStore('productos', {
                     .single()
 
                 if (error) throw error
-                
+
                 await this.fetchProductos()
+                this.lastAction = 'created'
                 return data
             } catch (error) {
                 this.error = error.message
@@ -62,6 +70,101 @@ export const useProductosStore = defineStore('productos', {
             } finally {
                 this.loading = false
             }
+        },
+
+        async updateProducto(id, productoData) {
+            this.loading = true
+            this.error = null
+            try {
+                const supabase = useSupabaseClient()
+                const { data, error } = await supabase
+                    .from('productos')
+                    .update(productoData)
+                    .eq('id', id)
+                    .select()
+                    .single()
+
+                if (error) throw error
+
+                await this.fetchProductos()
+                this.lastAction = 'updated'
+                return data
+            } catch (error) {
+                this.error = error.message
+                console.error('Error updating producto:', error)
+                throw error
+            } finally {
+                this.loading = false
+            }
+        },
+
+        async deleteProducto(id) {
+            this.loading = true
+            this.error = null
+            try {
+                const supabase = useSupabaseClient()
+                const { error } = await supabase
+                    .from('productos')
+                    .delete()
+                    .eq('id', id)
+
+                if (error) throw error
+
+                await this.fetchProductos()
+                this.lastAction = 'deleted'
+            } catch (error) {
+                this.error = error.message
+                console.error('Error deleting producto:', error)
+                throw error
+            } finally {
+                this.loading = false
+            }
+        },
+
+        async uploadImage(file, path) {
+            try {
+                const supabase = useSupabaseClient()
+                const fileExt = file.name.split('.').pop()
+                const fileName = `${Math.random()}.${fileExt}`
+                const filePath = `${path}/${fileName}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from('productos')
+                    .upload(filePath, file)
+
+                if (uploadError) throw uploadError
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('productos')
+                    .getPublicUrl(filePath)
+
+                return publicUrl
+            } catch (error) {
+                console.error('Error uploading image:', error)
+                throw error
+            }
+        },
+
+        async deleteImage(path) {
+            try {
+                const supabase = useSupabaseClient()
+                const { error } = await supabase.storage
+                    .from('productos')
+                    .remove([path])
+
+                if (error) throw error
+            } catch (error) {
+                console.error('Error deleting image:', error)
+                throw error
+            }
+        },
+
+        clearLastAction() {
+            this.lastAction = null
+        },
+
+        clearError() {
+            this.error = null
         }
     }
 })
