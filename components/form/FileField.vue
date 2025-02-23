@@ -8,17 +8,14 @@
                 Cambiar imagen
             </button>
         </div>
+        <FileUpload v-if="!existingFileUrl || showFileUpload || modelValue" :id="id" mode="basic" :accept="accept"
+            :maxFileSize="maxFileSize" :chooseLabel="placeholder" @select="onSelect" />
 
-        <div class="flex">
-            <FileUpload v-if="!existingFileUrl || showFileUpload || modelValue" :id="id" mode="basic" :accept="accept"
-                :maxFileSize="maxFileSize" :chooseLabel="placeholder" @select="onSelect" />
-
-            <div v-if="modelValue && previewUrl" class="fileContainer rowCenter">
-                <img :src="previewUrl" alt="Selected file preview" />
-                <button type="button" class="primaryButton redButton" @click="removeFile">
-                    Eliminar
-                </button>
-            </div>
+        <div v-if="modelValue && previewUrl" class="fileContainer rowCenter">
+            <img :src="previewUrl" alt="Selected file preview" />
+            <button type="button" class="primaryButton redButton" @click="removeFile">
+                Eliminar
+            </button>
         </div>
 
         <div class="error" v-if="error">

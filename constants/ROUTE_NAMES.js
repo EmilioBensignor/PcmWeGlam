@@ -9,5 +9,5 @@ export const ROUTE_NAMES = {
     // Auth
     HOME: '/',
     PRODUCT_CREATE: '/productos/create',
-    PRODUCT_EDIT: '/productos/edit/:id',
+    PRODUCT_EDIT: '/productos/edit',
 };

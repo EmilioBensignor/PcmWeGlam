@@ -104,4 +104,18 @@ defineEmits(['update:modelValue'])
 input:checked+.switchCircle::before {
     transform: translateX(6.25rem);
 }
+
+@media (width >=992px) {
+    .customSwitch {
+        width: 10.5rem;
+    }
+
+    .switchCircle span {
+        font-size: 1.125rem;
+    }
+
+    input:checked+.switchCircle::before {
+        transform: translateX(7.25rem);
+    }
+}
 </style>

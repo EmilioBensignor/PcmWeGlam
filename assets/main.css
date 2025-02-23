@@ -317,6 +317,7 @@ form .fileContainer {
     width: 100%;
     flex-wrap: wrap;
     gap: 2rem;
+    margin-top: 1rem;
 }
 
 form .fileContainer img {
@@ -709,6 +710,7 @@ nav .next {
     form .p-inputtext::placeholder,
     form .p-password input::placeholder,
     form .p-textarea,
+    form .p-select,
     form .p-select .p-placeholder {
         font-size: 1.25rem;
     }

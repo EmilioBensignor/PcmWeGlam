@@ -1,3 +1,5 @@
+import { imageOptimization } from "~/services/imageOptimization"
+
 export const useProductosStore = defineStore('productos', {
     state: () => ({
         productos: [],
@@ -48,27 +50,40 @@ export const useProductosStore = defineStore('productos', {
         },
 
         async createProducto(productoData) {
-            this.loading = true
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
-                const supabase = useSupabaseClient()
+                const supabase = useSupabaseClient();
+
+                const dataToInsert = {
+                    titulo: productoData.titulo,
+                    descripcion: productoData.descripcion,
+                    costo_dolar: productoData.costo_dolar,
+                    categoria: productoData.categoria,
+                    destacado: productoData.destacado,
+                    mas_vendido: productoData.mas_vendido,
+                    oculto: productoData.oculto,
+                    promocion: productoData.promocion,
+                    imagen: productoData.imagen
+                };
+
                 const { data, error } = await supabase
                     .from('productos')
-                    .insert(productoData)
+                    .insert(dataToInsert)
                     .select()
-                    .single()
+                    .single();
 
-                if (error) throw error
+                if (error) throw error;
 
-                await this.fetchProductos()
-                this.lastAction = 'created'
-                return data
+                await this.fetchProductos();
+                this.lastAction = 'created';
+                return data;
             } catch (error) {
-                this.error = error.message
-                console.error('Error creating producto:', error)
-                throw error
+                this.error = error.message;
+                console.error('Error creating producto:', error);
+                throw error;
             } finally {
-                this.loading = false
+                this.loading = false;
             }
         },
 
@@ -121,23 +136,10 @@ export const useProductosStore = defineStore('productos', {
             }
         },
 
-        async uploadImage(file, path) {
+        // store/productos.js
+        async uploadImage(file, options = {}) {
             try {
-                const supabase = useSupabaseClient()
-                const fileExt = file.name.split('.').pop()
-                const fileName = `${Math.random()}.${fileExt}`
-                const filePath = `${path}/${fileName}`
-
-                const { error: uploadError } = await supabase.storage
-                    .from('productos')
-                    .upload(filePath, file)
-
-                if (uploadError) throw uploadError
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from('productos')
-                    .getPublicUrl(filePath)
-
+                const publicUrl = await imageOptimization.uploadImage(file, options)
                 return publicUrl
             } catch (error) {
                 console.error('Error uploading image:', error)
@@ -145,17 +147,41 @@ export const useProductosStore = defineStore('productos', {
             }
         },
 
-        async deleteImage(path) {
+        async deleteProducto(id) {
+            this.loading = true
+            this.error = null
             try {
                 const supabase = useSupabaseClient()
-                const { error } = await supabase.storage
-                    .from('productos')
-                    .remove([path])
 
-                if (error) throw error
+                const { data: producto } = await supabase
+                    .from('productos')
+                    .select('imagen')
+                    .eq('id', id)
+                    .single()
+
+                const { error: deleteError } = await supabase
+                    .from('productos')
+                    .delete()
+                    .eq('id', id)
+
+                if (deleteError) throw deleteError
+
+                if (producto?.imagen) {
+                    try {
+                        await this.deleteImage(producto.imagen)
+                    } catch (imageError) {
+                        console.error('Error al eliminar la imagen:', imageError)
+                    }
+                }
+
+                await this.fetchProductos()
+                this.lastAction = 'deleted'
             } catch (error) {
-                console.error('Error deleting image:', error)
+                this.error = error.message
+                console.error('Error deleting producto:', error)
                 throw error
+            } finally {
+                this.loading = false
             }
         },
 

@@ -25,7 +25,6 @@ import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
-import { useToast } from 'primevue/usetoast'
 
 definePageMeta({
     middleware: 'auth'
@@ -91,7 +90,6 @@ const tableColumns = [
     },
     {
         data: 'promocion',
-        render: (data) => data ? 'Si' : 'No'
     },
     {
         data: null,
@@ -124,7 +122,7 @@ const formattedProducts = computed(() => {
 })
 
 const handleEdit = (id) => {
-    router.push(`/productos/editar/${id}`)
+    navigateTo(`${ROUTE_NAMES.PRODUCT_EDIT}/${id}`)
 }
 
 const { $toast } = useNuxtApp()
