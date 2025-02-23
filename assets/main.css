@@ -313,21 +313,24 @@ form .p-fileupload-basic .p-message-text {
     color: var(--color-red);
 }
 
-form .fileContainer {
+form .fileContainer,
+.imagePreview {
     width: 100%;
     flex-wrap: wrap;
     gap: 2rem;
     margin-top: 1rem;
 }
 
-form .fileContainer img {
+form .fileContainer img,
+.imagePreview img {
     width: 100%;
     max-width: 200px;
     max-height: 200px;
     object-fit: contain;
 }
 
-form .fileContainer button {
+form .fileContainer button,
+.imagePreview button {
     width: max-content;
     font-size: 0.75rem !important;
     padding: 0.75rem 1.5rem !important;

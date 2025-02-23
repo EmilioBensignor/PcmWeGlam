@@ -139,15 +139,9 @@ const confirmDelete = async () => {
         try {
             deletedItemName.value = selectedItem.value.titulo
 
-            if (selectedItem.value.imagen) {
-                const imagePath = selectedItem.value.imagen.split('/').pop()
-                await productosStore.deleteImage(imagePath)
-            }
-
             await productosStore.deleteProducto(selectedItem.value.id)
 
             deleteDialog.value = false
-
             $toast.success(`El producto ${deletedItemName.value} ha sido eliminado`)
 
             selectedItem.value = null

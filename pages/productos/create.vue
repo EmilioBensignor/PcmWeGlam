@@ -2,7 +2,7 @@
     <main>
         <h1>Nuevo Producto</h1>
         <section class="w-full productForm column">
-            <FormProducto :categorias="categorias" @submit="handleSubmit" />
+            <FormProducto :categorias="categorias" :initialData="initialFormData" @submit="handleSubmit" />
         </section>
     </main>
 </template>
@@ -20,6 +20,18 @@ definePageMeta({
 const productosStore = useProductosStore()
 const categoriasStore = useCategoriasStore()
 const toast = useToast()
+
+const initialFormData = {
+    titulo: '',
+    descripcion: '',
+    costo_dolar: '',
+    categoria: null,
+    destacado: false,
+    mas_vendido: false,
+    oculto: false,
+    promocion: '',
+    imagen: null
+}
 
 const categorias = computed(() => categoriasStore.getCategorias || [])
 

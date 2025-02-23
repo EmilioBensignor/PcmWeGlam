@@ -136,13 +136,28 @@ export const useProductosStore = defineStore('productos', {
             }
         },
 
-        // store/productos.js
         async uploadImage(file, options = {}) {
             try {
                 const publicUrl = await imageOptimization.uploadImage(file, options)
                 return publicUrl
             } catch (error) {
                 console.error('Error uploading image:', error)
+                throw error
+            }
+        },
+
+        async deleteImage(imagePath) {
+            try {
+                const supabase = useSupabaseClient()
+                const { error } = await supabase.storage
+                    .from('productos')
+                    .remove([imagePath])
+
+                if (error) throw error
+
+                return true
+            } catch (error) {
+                console.error('Error deleting image:', error)
                 throw error
             }
         },
