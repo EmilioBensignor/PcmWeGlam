@@ -43,7 +43,7 @@ const menu = [
     },
     {
         label: "Variables generales",
-        route: ROUTE_NAMES.HOME,
+        route: ROUTE_NAMES.VARIABLES,
     },
 ];
 

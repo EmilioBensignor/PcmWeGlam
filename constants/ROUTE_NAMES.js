@@ -10,4 +10,5 @@ export const ROUTE_NAMES = {
     HOME: '/',
     PRODUCT_CREATE: '/productos/create',
     PRODUCT_EDIT: '/productos/edit',
+    VARIABLES: '/variables',
 };

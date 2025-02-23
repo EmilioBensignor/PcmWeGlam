@@ -258,7 +258,8 @@ form {
 form .p-inputtext,
 form .p-textarea,
 form .p-select,
-.dt-input {
+.dt-input,
+.variableInput {
     width: 100%;
     background: transparent;
     border: 1px solid var(--black-color);
@@ -714,7 +715,8 @@ nav .next {
     form .p-password input::placeholder,
     form .p-textarea,
     form .p-select,
-    form .p-select .p-placeholder {
+    form .p-select .p-placeholder,
+    .variableInput {
         font-size: 1.25rem;
     }
 
@@ -758,7 +760,8 @@ nav .next {
     }
 
     form .p-inputtext,
-    form .p-textarea {
+    form .p-textarea,
+    .variableInput {
         padding: 0.75rem 0.875rem;
     }
 

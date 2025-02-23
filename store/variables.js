@@ -39,6 +39,29 @@ export const useVariablesStore = defineStore('variables', {
             } finally {
                 this.loading = false
             }
+        },
+
+        async updateVariable(id, valor) {
+            this.loading = true
+            try {
+                const supabase = useSupabaseClient()
+                const { data, error } = await supabase
+                    .from('variables')
+                    .update({ valor })
+                    .eq('id', id)
+                    .select()
+                    .single()
+
+                if (error) throw error
+
+                await this.fetchVariables()
+                return data
+            } catch (error) {
+                this.error = error.message
+                throw error
+            } finally {
+                this.loading = false
+            }
         }
     }
 })
