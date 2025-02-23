@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full formField column">
+    <div class="formField column">
         <p>{{ label }}</p>
         <label :for="id" class="customSwitch">
             <input type="checkbox" :id="id" :checked="modelValue"

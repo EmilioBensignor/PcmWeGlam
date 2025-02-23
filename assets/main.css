@@ -280,7 +280,7 @@ form .p-select {
 form .p-inputtext::placeholder,
 form .p-password input::placeholder,
 form .p-textarea,
-form .p-select-label.p-placeholder {
+form .p-select .p-placeholder {
     font-size: 1rem;
     color: var(--gray-color);
 }
@@ -708,7 +708,8 @@ nav .next {
     form .p-textarea,
     form .p-inputtext::placeholder,
     form .p-password input::placeholder,
-    form .p-textarea {
+    form .p-textarea,
+    form .p-select .p-placeholder {
         font-size: 1.25rem;
     }
 

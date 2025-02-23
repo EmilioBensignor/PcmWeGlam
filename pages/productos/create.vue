@@ -4,15 +4,27 @@
         <section class="w-full productForm column">
             <form class="w-full columnAlignCenter" @submit.prevent="handleSubmit">
                 <div class="formFieldsContainer">
-                    <FormTextField id="titulo" label="Título" v-model="formData.titulo" :error="errors.titulo" />
-                    <FormTextField id="descripcion" label="Descripción" v-model="formData.descripcion"
-                        :error="errors.descripcion" />
+                    <FormTextField id="titulo" label="Título*" v-model="formData.titulo" :error="errors.titulo"
+                        placeholder="Tender" />
+                    <FormFileField 
+                        id="imagen"
+                        label="Imágen*"
+                        v-model="formData.imagen"
+                        :error="errors.imagen"
+                        accept="image/*"
+                        placeholder="Seleccionar imagen"
+                        :maxFileSize="5000000"
+                    />
                 </div>
                 <div class="formFieldsContainer">
-                    <FormTextField id="costo_dolar" label="Costo en dólares" type="number" step="0.01"
-                        v-model="formData.costo_dolar" :error="errors.costo_dolar" />
+                    <FormTextField id="descripcion" label="Descripción*" v-model="formData.descripcion"
+                        placeholder="Tender plegable de 3 plazas" :error="errors.descripcion" />
+                    <FormTextField id="costo_dolar" label="Costo en dólares*" type="number" step="0.01"
+                        v-model="formData.costo_dolar" :error="errors.costo_dolar" placeholder="$5.00" />
+                </div>
+                <div class="formFieldsContainer">
                     <div class="formField column">
-                        <label for="categoria">Categoría</label>
+                        <label for="categoria">Categoría*</label>
                         <Select inputId="categoria" id="categoria" v-model="formData.categoria" :options="categorias"
                             optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría"
                             class="w-full" />
@@ -21,15 +33,18 @@
                             <p>{{ errors.categoria }}</p>
                         </div>
                     </div>
+                    <FormTextField id="promocion" label="Promoción" placeholder="30% OFF" type="text"
+                        v-model="formData.promocion" :error="errors.promocion" />
                 </div>
-                <div class="formFieldsContainer">
+                <div class="formFieldsContainer switchersContainer">
                     <FormSwitch id="destacado" label="Destacado" v-model="formData.destacado" data-on="Activado"
                         data-off="Desactivado" />
                     <FormSwitch id="mas_vendido" label="Más vendido" v-model="formData.mas_vendido" data-on="Activado"
                         data-off="Desactivado" />
-                    <FormSwitch id="promocion" label="En promoción" v-model="formData.promocion" data-on="Activado"
+                    <FormSwitch id="oculto" label="Oculto" v-model="formData.oculto" data-on="Activado"
                         data-off="Desactivado" />
                 </div>
+
                 <div class="formActions wrapCenter">
                     <NuxtLink :to="ROUTE_NAMES.HOME" class="primaryButton">Cancelar</NuxtLink>
                     <button type="submit" class="primaryButton active">Crear</button>
@@ -68,15 +83,17 @@ const formData = reactive({
     categoria: null,
     destacado: false,
     mas_vendido: false,
-    promocion: false,
-    oculto: false
+    oculto: false,
+    promocion: '',
+    imagen: null
 })
 
 const errors = reactive({
     titulo: null,
     descripcion: null,
     costo_dolar: null,
-    categoria: null
+    categoria: null,
+    imagen: null
 })
 
 onMounted(async () => {
@@ -101,6 +118,11 @@ const clearErrors = () => {
 const validateForm = () => {
     let isValid = true
     clearErrors()
+
+    if (!formData.imagen) {
+        errors.imagen = 'La imagen es requerida'
+        isValid = false
+    }
 
     if (!formData.titulo) {
         errors.titulo = 'El título es requerido'
@@ -143,15 +165,14 @@ const validateForm = () => {
 const handleSubmit = async () => {
     if (validateForm()) {
         try {
-            const formattedData = {
-                ...formData,
-                costo_dolar: formatNumberForDB(formData.costo_dolar)
-            }
-
-            if (formattedData.costo_dolar === null) {
-                errors.costo_dolar = 'Ingrese un número válido'
-                return
-            }
+            const formattedData = new FormData()
+            Object.keys(formData).forEach(key => {
+                if (key === 'costo_dolar') {
+                    formattedData.append(key, formatNumberForDB(formData[key]))
+                } else {
+                    formattedData.append(key, formData[key])
+                }
+            })
 
             await productosStore.createProducto(formattedData)
             await navigateTo('/')
@@ -162,3 +183,26 @@ const handleSubmit = async () => {
     }
 }
 </script>
+
+<style scoped>
+.switchersContainer {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.switchersContainer>div {
+    width: max-content;
+}
+
+
+@media (width >=992px) {
+    .switchersContainer {
+        justify-content: flex-start;
+        gap: 3rem;
+    }
+
+    .switchersContainer>div {
+        width: max-content !important;
+    }
+}
+</style>
