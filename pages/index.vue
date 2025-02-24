@@ -78,15 +78,15 @@ const tableColumns = [
     },
     {
         data: 'destacado',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => data ? '✔️' : ''
     },
     {
         data: 'mas_vendido',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => data ? '✔️' : ''
     },
     {
         data: 'oculto',
-        render: (data) => data ? 'Si' : 'No'
+        render: (data) => data ? '✔️' : ''
     },
     {
         data: 'promocion',

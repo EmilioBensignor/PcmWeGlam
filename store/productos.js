@@ -39,7 +39,7 @@ export const useProductosStore = defineStore('productos', {
 
                 if (error) throw error
 
-                this.productos = data.filter(producto => !producto.oculto)
+                this.productos = data
             } catch (error) {
                 this.error = error.message
                 console.error('Error fetching productos:', error)

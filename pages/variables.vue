@@ -5,29 +5,29 @@
             <div v-if="loading" class="w-full">
                 Cargando...
             </div>
-            <div v-else class="w-full variablesContainer columnAlignCenter">
-                <div v-for="variable in variables" :key="variable.id" class="w-full">
-                    <div class="w-full rowSpaceBetweenCenter">
-                        <div class="variableItem rowCenter">
-                            <strong>{{ variable.nombre }}:</strong>
-                            <template v-if="editingId === variable.id">
-                                <input v-model="editValue" type="text" @keyup.enter="saveEdit(variable.id)" class="variableInput">
-                            </template>
-                            <template v-else>
+            <div v-else class="w-full variablesContainer rowCenter">
+                <div v-for="variable in variables" :key="variable.id">
+                    <div class="variableItem rowCenter">
+                        <div class="rowCenter">
+                            <p class="font-medium">{{ variable.alias }}:</p>
+                            <input v-if="editingId === variable.id" v-model="editValue" type="text"
+                                @keyup.enter="saveEdit(variable.id)" class="variableInput">
+                            <p v-else>
                                 {{ variable.valor }}
-                            </template>
+                            </p>
                         </div>
                         <div>
                             <div v-if="editingId === variable.id" class="rowCenter gap-3">
-                                <button @click="saveEdit(variable.id)" class="primaryButton active">
-                                    Guardar
+                                <button @click="saveEdit(variable.id)" class="saveEdit btnVariable active">
+                                    <Icon name="tabler:check" />
                                 </button>
-                                <button @click="cancelEdit" class="primaryButton redButton">
-                                    Cancelar
+                                <button @click="cancelEdit" class="cancelEdit btnVariable">
+                                    <Icon name="tabler:plus" />
                                 </button>
                             </div>
-                            <button v-else @click="startEdit(variable)" class="primaryButton">
-                                Editar
+                            <button v-else @click="startEdit(variable)" class="editVariable btnVariable"
+                                aria-label="Editar">
+                                <Icon name="tabler:edit" class="text-terciary" />
                             </button>
                         </div>
                     </div>
@@ -76,11 +76,61 @@ onMounted(() => {
 </script>
 
 <style scoped>
+section {
+    max-width: 900px;
+}
+
 .variablesContainer {
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 4rem;
+}
+
+.variablesContainer > div {
+    width: 100%;
 }
 
 .variableItem {
-    gap: 0.5rem;
+    gap: 2rem;
+}
+
+.variableItem>div {
+    gap: 0.625rem;
+}
+
+.btnVariable {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.btnVariable span {
+    font-size: 1.25rem !important;
+}
+
+.editVariable {
+    background: var(--light-gray-color);
+}
+
+.saveEdit {
+    background: var(--secondary-color);
+}
+
+.cancelEdit {
+    background: var(--color-red);
+}
+
+.cancelEdit span {
+    transform: rotate(45deg);
+}
+
+@media (width >=600px) {
+    .variablesContainer {
+        flex-wrap: nowrap;
+    }
 }
 </style>

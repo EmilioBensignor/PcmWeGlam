@@ -1,5 +1,5 @@
 <template>
-    <div class="formField column">
+    <div class="formField rowCenter">
         <p>{{ label }}</p>
         <label :for="id" class="customSwitch">
             <input type="checkbox" :id="id" :checked="modelValue"
@@ -8,7 +8,6 @@
                 'switchCircle-on': modelValue,
                 'switchCircle-off': !modelValue
             }">
-                <span>{{ modelValue ? 'True' : 'False' }}</span>
             </div>
         </label>
     </div>
@@ -44,9 +43,13 @@ defineEmits(['update:modelValue'])
 </script>
 
 <style scoped>
+.formField {
+    gap: 0.75rem;
+}
+
 .customSwitch {
-    width: 9.5rem;
-    height: 3.125rem;
+    width: 3.5rem;
+    height: 1.75rem;
     display: inline-block;
     position: relative;
     cursor: pointer;
@@ -69,7 +72,6 @@ defineEmits(['update:modelValue'])
     border-radius: 999px;
     background-color: var(--mid-gray-color);
     transition: background-color 0.4s;
-    border: 1px solid var(--gray-color);
 }
 
 .switchCircle span {
@@ -83,10 +85,10 @@ defineEmits(['update:modelValue'])
 .switchCircle::before {
     position: absolute;
     content: "";
-    height: 2.625rem;
-    width: 2.625rem;
+    height: 1.25rem;
+    width: 1.25rem;
     left: 4px;
-    top: 3px;
+    top: 4px;
     border-radius: 50%;
     background-color: white;
     transition: transform 0.4s;
@@ -102,20 +104,6 @@ defineEmits(['update:modelValue'])
 }
 
 input:checked+.switchCircle::before {
-    transform: translateX(6.25rem);
-}
-
-@media (width >=992px) {
-    .customSwitch {
-        width: 10.5rem;
-    }
-
-    .switchCircle span {
-        font-size: 1.125rem;
-    }
-
-    input:checked+.switchCircle::before {
-        transform: translateX(7.25rem);
-    }
+    transform: translateX(1.775rem);
 }
 </style>

@@ -127,6 +127,7 @@ const handleSubmit = async () => {
 <style scoped>
 .switchersContainer {
     flex-direction: row;
+    justify-content: space-between;
     flex-wrap: wrap;
 }
 
@@ -135,11 +136,6 @@ const handleSubmit = async () => {
 }
 
 @media (width >=992px) {
-    .switchersContainer {
-        justify-content: flex-start;
-        gap: 3rem;
-    }
-
     .switchersContainer>div {
         width: max-content !important;
     }
