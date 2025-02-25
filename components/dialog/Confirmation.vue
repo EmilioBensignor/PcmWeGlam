@@ -1,5 +1,8 @@
 <template>
     <Dialog :visible="visible" @update:visible="$emit('update:visible', $event)" modal class="dialog">
+        <button class="closeButton" @click="$emit('update:visible', false)">
+            <Icon name="tabler:plus" />
+        </button>
         <div class="deleteContainer columnAlignCenter">
             <h2 class="text-center">{{ confirmationMessage }}</h2>
             <slot></slot>

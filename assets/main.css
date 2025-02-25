@@ -626,6 +626,7 @@ nav .next {
 .dialog {
     width: 90%;
     max-width: 900px;
+    position: relative;
     background: var(--white-color) !important;
     box-shadow: 0px 4px 4px 0px #00000040 !important;
     border: none !important;
@@ -634,16 +635,17 @@ nav .next {
 }
 
 .dialog>.p-dialog-header {
-    justify-content: flex-end;
+    display: none;
 }
 
-.dialog>.p-dialog-header .p-icon {
-    width: 1rem;
-    height: 1rem;
+.dialog .closeButton {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
 }
 
 .dialog>.p-dialog-content {
-    padding: 2rem;
+    padding: 0 2rem 2rem 2rem;
 }
 
 .dialog .deleteContainer {

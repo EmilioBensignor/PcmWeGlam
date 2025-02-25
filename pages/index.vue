@@ -14,8 +14,6 @@
         <DialogConfirmation v-model:visible="deleteDialog"
             :confirmation-message="`¿Estás seguro que quieres eliminar ${selectedItem?.titulo}?`"
             @confirm="confirmDelete" />
-        <DialogConfirmation v-model:visible="confirmationDialog"
-            :confirmation-message="`Se ha eliminado correctamente ${deletedItemName}`" :show-actions="false" />
     </main>
 </template>
 
@@ -35,7 +33,6 @@ const productosStore = useProductosStore()
 const variablesStore = useVariablesStore()
 
 const deleteDialog = ref(false)
-const confirmationDialog = ref(false)
 const selectedItem = ref(null)
 const deletedItemName = ref('')
 
