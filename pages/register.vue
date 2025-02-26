@@ -11,8 +11,9 @@
                         autocomplete="current-password" v-model="form.password" :error="errors.password"
                         @input="validatePassword" type="password" />
                 </div>
-                <NuxtLink :to="ROUTE_NAMES.LOGIN">Iniciar sesión</NuxtLink>
-
+                <p class="pSmall">Si ya tienes una cuenta, <NuxtLink :to="ROUTE_NAMES.LOGIN" class="pSmall text-black">
+                        inicia sesion</NuxtLink>
+                </p>
                 <div class="error center" v-if="errorMsg">
                     <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
                     <span class="pi pi-exclamation-circle"></span>
@@ -28,6 +29,7 @@
 <script setup>
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
 import { useToast } from "primevue/usetoast";
+import { useRouter } from 'vue-router';
 
 definePageMeta({
     layout: "auth",
@@ -35,6 +37,7 @@ definePageMeta({
 
 const client = useSupabaseClient();
 const toast = useToast()
+const router = useRouter();
 
 const form = reactive({
     email: '',
@@ -137,6 +140,11 @@ async function signUp() {
             detail: 'Tu cuenta se ha creado con éxito. Revisa tu correo electrónico para verificar tu cuenta.',
             life: 5000
         });
+
+        setTimeout(() => {
+            router.push(ROUTE_NAMES.LOGIN);
+        }, 5000);
+
     } catch (error) {
         errorMsg.value = error.message
     } finally {

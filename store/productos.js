@@ -117,14 +117,12 @@ export const useProductosStore = defineStore('productos', {
             this.loading = true
             this.error = null
             try {
-                // Validar que el ID sea un formato válido antes de enviarlo
-                if (!id || typeof id !== 'number' && isNaN(parseInt(id))) {
+                if (!id || (typeof id !== 'number' && isNaN(parseInt(id)))) {
                     throw new Error('ID de producto inválido')
                 }
 
                 const supabase = useSupabaseClient()
 
-                // Obtener el producto primero para verificar que existe
                 const { data: producto, error: fetchError } = await supabase
                     .from('productos')
                     .select('imagen, id')

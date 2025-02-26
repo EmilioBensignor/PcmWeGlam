@@ -6,7 +6,7 @@
                 Cargando...
             </div>
             <div v-else class="w-full variablesContainer rowCenter">
-                <div v-for="variable in variables" :key="variable.id">
+                <div v-for="variable in sortedVariables" :key="variable.id">
                     <div class="variableItem rowCenter">
                         <div class="rowCenter">
                             <p class="font-medium">{{ variable.alias }}:</p>
@@ -40,7 +40,7 @@
 <script setup>
 import { useVariablesStore } from '~/store/variables'
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const store = useVariablesStore()
 const { variables, loading, error } = storeToRefs(store)
@@ -48,6 +48,20 @@ const { $toast } = useNuxtApp()
 
 const editingId = ref(null)
 const editValue = ref('')
+const originalOrder = ref([]) // Mantener el orden original
+
+// Computed property para mantener las variables en el orden original
+const sortedVariables = computed(() => {
+    // Si es la primera carga, guardar el orden
+    if (originalOrder.value.length === 0 && variables.value.length > 0) {
+        originalOrder.value = variables.value.map(v => v.id)
+    }
+
+    // Ordenar según el orden original
+    return [...variables.value].sort((a, b) => {
+        return originalOrder.value.indexOf(a.id) - originalOrder.value.indexOf(b.id)
+    })
+})
 
 const startEdit = (variable) => {
     editingId.value = variable.id
@@ -77,7 +91,7 @@ onMounted(() => {
 
 <style scoped>
 section {
-    max-width: 900px;
+    max-width: 1100px;
 }
 
 .variablesContainer {
@@ -85,7 +99,7 @@ section {
     gap: 4rem;
 }
 
-.variablesContainer > div {
+.variablesContainer>div {
     width: 100%;
 }
 
@@ -95,6 +109,10 @@ section {
 
 .variableItem>div {
     gap: 0.625rem;
+}
+
+.variableItem>div>p {
+    white-space: nowrap;
 }
 
 .btnVariable {

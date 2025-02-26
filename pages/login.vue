@@ -13,7 +13,8 @@
                 <NuxtLink :to="ROUTE_NAMES.FORGOT_PASSWORD" class="pSmall text-black">
                     ¿Olvidaste tu contraseña?
                 </NuxtLink>
-                <p class="pSmall">Si todavía no tienes una cuenta, <NuxtLink :to="ROUTE_NAMES.REGISTER" class="pSmall text-black">
+                <p class="pSmall">Si todavía no tienes una cuenta, <NuxtLink :to="ROUTE_NAMES.REGISTER"
+                        class="pSmall text-black">
                         registrate</NuxtLink>
                 </p>
                 <div class="error center" v-if="errorMsg">
