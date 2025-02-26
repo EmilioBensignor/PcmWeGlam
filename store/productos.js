@@ -114,47 +114,51 @@ export const useProductosStore = defineStore('productos', {
         },
 
         async deleteProducto(id) {
-            this.loading = true
-            this.error = null
+            this.loading = true;
+            this.error = null;
             try {
-                if (!id || (typeof id !== 'number' && isNaN(parseInt(id)))) {
-                    throw new Error('ID de producto inválido')
+                if (!id || typeof id !== 'string' || !id.trim()) {
+                    throw new Error('ID de producto inválido');
                 }
 
-                const supabase = useSupabaseClient()
+                const supabase = useSupabaseClient();
 
                 const { data: producto, error: fetchError } = await supabase
                     .from('productos')
-                    .select('imagen, id')
+                    .select('imagen, id, titulo')
                     .eq('id', id)
-                    .single()
+                    .single();
 
-                if (fetchError) throw fetchError
-                if (!producto) throw new Error('Producto no encontrado')
+                if (fetchError) throw fetchError;
+                if (!producto) throw new Error('Producto no encontrado');
+
+
+                if (producto?.imagen) {
+                    try {
+                        await this.deleteImage(producto.imagen);
+                    } catch (imageError) {
+                        console.error('Error al eliminar la imagen:', imageError);
+                    }
+                } else {
+                    console.log('Producto no tiene imagen para eliminar');
+                }
 
                 const { error: deleteError } = await supabase
                     .from('productos')
                     .delete()
-                    .eq('id', id)
+                    .eq('id', id);
 
-                if (deleteError) throw deleteError
+                if (deleteError) throw deleteError;
 
-                if (producto?.imagen) {
-                    try {
-                        await this.deleteImage(producto.imagen)
-                    } catch (imageError) {
-                        console.error('Error al eliminar la imagen:', imageError)
-                    }
-                }
-
-                await this.fetchProductos()
-                this.lastAction = 'deleted'
+                await this.fetchProductos();
+                this.lastAction = 'deleted';
+                return true;
             } catch (error) {
-                this.error = error.message
-                console.error('Error deleting producto:', error)
-                throw error
+                this.error = error.message;
+                console.error('Error deleting producto:', error);
+                throw error;
             } finally {
-                this.loading = false
+                this.loading = false;
             }
         },
 
@@ -170,17 +174,28 @@ export const useProductosStore = defineStore('productos', {
 
         async deleteImage(imagePath) {
             try {
-                const supabase = useSupabaseClient()
+                const supabase = useSupabaseClient();
+
+                let imagePathToDelete = imagePath;
+
+                if (imagePath.startsWith('http')) {
+                    imagePathToDelete = imagePath.split('/').pop();
+                }
+
+
                 const { error } = await supabase.storage
                     .from('productos')
-                    .remove([imagePath])
+                    .remove([imagePathToDelete]);
 
-                if (error) throw error
+                if (error) {
+                    console.error('Error detallado al eliminar imagen:', error);
+                    throw error;
+                }
 
-                return true
+                return true;
             } catch (error) {
-                console.error('Error deleting image:', error)
-                throw error
+                console.error('Error en deleteImage:', error);
+                throw error;
             }
         },
 

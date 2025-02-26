@@ -12,7 +12,7 @@
                         @input="validatePassword" type="password" />
                 </div>
                 <p class="pSmall">Si ya tienes una cuenta, <NuxtLink :to="ROUTE_NAMES.LOGIN" class="pSmall text-black">
-                        inicia sesion</NuxtLink>
+                        inicia sesión</NuxtLink>
                 </p>
                 <div class="error center" v-if="errorMsg">
                     <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
