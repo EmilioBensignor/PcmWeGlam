@@ -103,6 +103,9 @@ const handleResetPassword = async () => {
 
         if (error) throw error
 
+        form.password = ''
+        form.confirmPassword = ''
+
         toast.add({
             severity: 'success',
             summary: '¡Éxito!',
