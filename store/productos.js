@@ -117,13 +117,37 @@ export const useProductosStore = defineStore('productos', {
             this.loading = true
             this.error = null
             try {
+                // Validar que el ID sea un formato válido antes de enviarlo
+                if (!id || typeof id !== 'number' && isNaN(parseInt(id))) {
+                    throw new Error('ID de producto inválido')
+                }
+
                 const supabase = useSupabaseClient()
-                const { error } = await supabase
+
+                // Obtener el producto primero para verificar que existe
+                const { data: producto, error: fetchError } = await supabase
+                    .from('productos')
+                    .select('imagen, id')
+                    .eq('id', id)
+                    .single()
+
+                if (fetchError) throw fetchError
+                if (!producto) throw new Error('Producto no encontrado')
+
+                const { error: deleteError } = await supabase
                     .from('productos')
                     .delete()
                     .eq('id', id)
 
-                if (error) throw error
+                if (deleteError) throw deleteError
+
+                if (producto?.imagen) {
+                    try {
+                        await this.deleteImage(producto.imagen)
+                    } catch (imageError) {
+                        console.error('Error al eliminar la imagen:', imageError)
+                    }
+                }
 
                 await this.fetchProductos()
                 this.lastAction = 'deleted'
@@ -159,44 +183,6 @@ export const useProductosStore = defineStore('productos', {
             } catch (error) {
                 console.error('Error deleting image:', error)
                 throw error
-            }
-        },
-
-        async deleteProducto(id) {
-            this.loading = true
-            this.error = null
-            try {
-                const supabase = useSupabaseClient()
-
-                const { data: producto } = await supabase
-                    .from('productos')
-                    .select('imagen')
-                    .eq('id', id)
-                    .single()
-
-                const { error: deleteError } = await supabase
-                    .from('productos')
-                    .delete()
-                    .eq('id', id)
-
-                if (deleteError) throw deleteError
-
-                if (producto?.imagen) {
-                    try {
-                        await this.deleteImage(producto.imagen)
-                    } catch (imageError) {
-                        console.error('Error al eliminar la imagen:', imageError)
-                    }
-                }
-
-                await this.fetchProductos()
-                this.lastAction = 'deleted'
-            } catch (error) {
-                this.error = error.message
-                console.error('Error deleting producto:', error)
-                throw error
-            } finally {
-                this.loading = false
             }
         },
 

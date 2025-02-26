@@ -4,8 +4,8 @@
             <h1>Iniciar sesión</h1>
             <form @submit.prevent="handleSignIn" class="w-full formAuth columnAlignCenter">
                 <div class="formFieldsContainer">
-                    <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs@gmail.com" autocomplete="email"
-                        v-model="form.email" :error="errors.email" @input="validateEmail" />
+                    <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs@gmail.com"
+                        autocomplete="email" v-model="form.email" :error="errors.email" @input="validateEmail" />
                     <FormPasswordField id="password" label="Contraseña" placeholder="********"
                         autocomplete="current-password" v-model="form.password" :error="errors.password"
                         @input="validatePassword" type="password" />
@@ -13,9 +13,9 @@
                 <NuxtLink :to="ROUTE_NAMES.FORGOT_PASSWORD" class="pSmall text-black">
                     ¿Olvidaste tu contraseña?
                 </NuxtLink>
-                <NuxtLink :to="ROUTE_NAMES.REGISTER" class="pSmall text-black">
-                    Registrarse
-                </NuxtLink>
+                <p class="pSmall">Si todavía no tienes una cuenta, <NuxtLink :to="ROUTE_NAMES.REGISTER" class="pSmall text-black">
+                        registrate</NuxtLink>
+                </p>
                 <div class="error center" v-if="errorMsg">
                     <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
                     <span class="pi pi-exclamation-circle"></span>
