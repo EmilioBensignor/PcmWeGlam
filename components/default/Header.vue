@@ -10,7 +10,7 @@
             <template #header>
                 <p>We Glam</p>
                 <button @click="closeDrawer" class="closeButton allCenter">
-                    <Icon name="tabler:plus" weight="100" />
+                    <Icon name="tabler:plus" weight="100" class="text-black" />
                 </button>
             </template>
             <nav class="column">
@@ -19,8 +19,8 @@
                     {{ link.label }}
                 </NuxtLink>
             </nav>
-            <button @click="signOut()" class="logOut">
-                <Icon :name="`tabler:logout`" />
+            <button @click="signOut()" class="logOut text-black">
+                <Icon :name="`tabler:logout`" class="text-black" />
                 Cerrar sesión
             </button>
         </Drawer>

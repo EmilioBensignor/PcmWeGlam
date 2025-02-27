@@ -653,6 +653,7 @@ nav .next {
 }
 
 .p-dialog-footer {
+    flex-wrap: wrap;
     justify-content: center !important;
     gap: 1.25rem !important;
 }
