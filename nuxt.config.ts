@@ -88,19 +88,11 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ['primeflex', 'lodash', 'pinia']
+      include: ['primeflex', 'pinia']
     },
     build: {
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'primevue': ['primevue'],
-            'vendors': ['lodash', 'pinia'],
-          }
-        }
-      }
     },
     server: {
       fs: {
