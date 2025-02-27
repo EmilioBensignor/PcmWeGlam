@@ -24,87 +24,120 @@
 </template>
 
 <script setup>
-import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
 import { useToast } from "primevue/usetoast";
 
 definePageMeta({
     layout: "auth",
 });
 
-const toast = useToast()
+const toast = useToast();
+const client = useSupabaseClient();
+const router = useRouter();
+const route = useRoute();
 
-const client = useSupabaseClient()
-const router = useRouter()
-
+// Estado del formulario
 const form = reactive({
     password: '',
     confirmPassword: ''
-})
+});
 
+// Estado de errores
 const errors = reactive({
     password: null,
     confirmPassword: null
-})
+});
 
-const loading = ref(false)
-const errorMsg = ref('')
+// Estado de carga y mensajes
+const loading = ref(false);
+const errorMsg = ref('');
+const passwordUpdateAttempted = ref(false);
 
+// Computar validez del formulario
 const isValid = computed(() => {
     return !errors.password &&
         !errors.confirmPassword &&
         form.password &&
         form.confirmPassword &&
-        form.password === form.confirmPassword
-})
+        form.password === form.confirmPassword;
+});
 
+// Verificar token de restablecimiento al cargar el componente
+onMounted(async () => {
+    // Verificar si hay un hash en la URL (token de reset)
+    if (!route.hash || !route.hash.includes('type=recovery')) {
+        errorMsg.value = 'Enlace de restablecimiento inválido o expirado';
+        return;
+    }
+
+    try {
+        const { data, error } = await client.auth.getSession();
+        if (error) {
+            console.warn('Error al verificar sesión:', error);
+        }
+    } catch (error) {
+        console.error('Error al inicializar recuperación:', error);
+    }
+});
+
+// Validación de contraseña
 const validatePassword = () => {
     if (!form.password) {
-        errors.password = 'La contraseña es requerida'
-        return false
+        errors.password = 'La contraseña es requerida';
+        return false;
     }
     if (form.password.length < 6) {
-        errors.password = 'La contraseña debe tener al menos 6 caracteres'
-        return false
+        errors.password = 'La contraseña debe tener al menos 6 caracteres';
+        return false;
     }
-    errors.password = null
-    validateConfirmPassword()
-    return true
-}
+    errors.password = null;
+    validateConfirmPassword();
+    return true;
+};
 
+// Validación de confirmación de contraseña
 const validateConfirmPassword = () => {
     if (!form.confirmPassword) {
-        errors.confirmPassword = 'Debe confirmar la contraseña'
-        return false
+        errors.confirmPassword = 'Debe confirmar la contraseña';
+        return false;
     }
     if (form.password !== form.confirmPassword) {
-        errors.confirmPassword = 'Las contraseñas no coinciden'
-        return false
+        errors.confirmPassword = 'Las contraseñas no coinciden';
+        return false;
     }
-    errors.confirmPassword = null
-    return true
-}
+    errors.confirmPassword = null;
+    return true;
+};
 
+// Función para actualizar contraseña
 const handleResetPassword = async () => {
-    loading.value = true
-    errorMsg.value = ''
+    if (passwordUpdateAttempted.value) {
+        errorMsg.value = 'El proceso de actualización ya está en curso. Por favor espere.';
+        return;
+    }
 
-    const isPasswordValid = validatePassword()
-    const isConfirmPasswordValid = validateConfirmPassword()
+    loading.value = true;
+    errorMsg.value = '';
+    passwordUpdateAttempted.value = true;
+
+    const isPasswordValid = validatePassword();
+    const isConfirmPasswordValid = validateConfirmPassword();
 
     if (!isPasswordValid || !isConfirmPasswordValid) {
-        loading.value = false
-        return
+        loading.value = false;
+        passwordUpdateAttempted.value = false;
+        return;
     }
 
     try {
         const { error } = await client.auth.updateUser({
             password: form.password
-        })
+        });
 
-        if (error) throw error
+        if (error) throw error;
 
-        form.password = ''
-        form.confirmPassword = ''
+        form.password = '';
+        form.confirmPassword = '';
 
         toast.add({
             severity: 'success',
@@ -116,12 +149,13 @@ const handleResetPassword = async () => {
         setTimeout(() => {
             router.push({
                 path: ROUTE_NAMES.LOGIN,
-            })
-        }, 3000)
+            });
+        }, 3000);
     } catch (error) {
-        errorMsg.value = error.message || 'Error al restablecer la contraseña'
+        errorMsg.value = error.message || 'Error al restablecer la contraseña';
+        passwordUpdateAttempted.value = false;
     } finally {
-        loading.value = false
+        loading.value = false;
     }
-}
+};
 </script>

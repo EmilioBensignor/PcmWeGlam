@@ -30,77 +30,111 @@
 </template>
 
 <script setup>
-import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
 
 definePageMeta({
     layout: "auth",
 });
 
-const client = useSupabaseClient()
-const router = useRouter()
+const client = useSupabaseClient();
+const router = useRouter();
+const route = useRoute();
 
+// Estado del formulario
 const form = reactive({
     email: '',
     password: ''
-})
+});
 
+// Estado de errores
 const errors = reactive({
     email: null,
     password: null
-})
+});
 
-const loading = ref(false)
-const errorMsg = ref('')
+// Estado de carga y mensajes
+const loading = ref(false);
+const errorMsg = ref('');
 
+// Computar validez del formulario
 const isValid = computed(() => {
     return !errors.email &&
         !errors.password &&
         form.email &&
-        form.password
-})
+        form.password;
+});
 
+// Autocompletar email si viene del registro
+onMounted(() => {
+    const lastEmail = sessionStorage.getItem('lastRegisteredEmail');
+    if (lastEmail) {
+        form.email = lastEmail;
+        // Limpiar después de usarlo
+        sessionStorage.removeItem('lastRegisteredEmail');
+    }
+
+    // Verificar si hay un hash en la URL (redirección de verificación de email)
+    if (route.hash && route.hash.includes('type=recovery')) {
+        // Extraer el email del hash si está disponible
+        const emailMatch = route.hash.match(/email=([^&]*)/);
+        if (emailMatch && emailMatch[1]) {
+            form.email = decodeURIComponent(emailMatch[1]);
+        }
+    }
+});
+
+// Validación de email
 const validateEmail = () => {
     if (!form.email) {
-        errors.email = 'El email es requerido'
-        return false
+        errors.email = 'El email es requerido';
+        return false;
     }
-    errors.email = null
-    return true
-}
+    errors.email = null;
+    return true;
+};
 
+// Validación de contraseña
 const validatePassword = () => {
     if (!form.password) {
-        errors.password = 'La contraseña es requerida'
-        return false
+        errors.password = 'La contraseña es requerida';
+        return false;
     }
-    errors.password = null
-    return true
-}
+    errors.password = null;
+    return true;
+};
 
+// Función de inicio de sesión
 const handleSignIn = async () => {
-    loading.value = true
-    errorMsg.value = ''
+    loading.value = true;
+    errorMsg.value = '';
 
-    const isEmailValid = validateEmail()
-    const isPasswordValid = validatePassword()
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
 
     if (!isEmailValid || !isPasswordValid) {
-        loading.value = false
-        return
+        loading.value = false;
+        return;
     }
 
     try {
+        // Guardar el email en localStorage para futuras sesiones
+        localStorage.setItem('lastLoginEmail', form.email);
+
         const { error } = await client.auth.signInWithPassword({
             email: form.email,
-            password: form.password
-        })
+            password: form.password,
+            options: {
+                staySignedIn: true
+            }
+        });
 
-        if (error) throw error
-        router.push(ROUTE_NAMES.HOME)
+        if (error) throw error;
+
+        router.push(ROUTE_NAMES.HOME);
     } catch (error) {
-        errorMsg.value = error.message
+        errorMsg.value = error.message;
     } finally {
-        loading.value = false
+        loading.value = false;
     }
-}
+};
 </script>

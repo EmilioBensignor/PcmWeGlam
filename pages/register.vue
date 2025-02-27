@@ -1,4 +1,3 @@
-// Mejora del componente de registro actual
 <template>
     <main>
         <Toast />
@@ -10,7 +9,7 @@
                         autocomplete="email" v-model="form.email" :error="errors.email" @input="validateEmail" />
                     <FormPasswordField id="password" label="Contraseña" placeholder="********"
                         autocomplete="new-password" v-model="form.password" :error="errors.password"
-                        @input="validatePassword" type="password" />
+                        @input="handlePasswordInput" type="password" />
                     <FormPasswordField id="passwordConfirm" label="Confirmar contraseña" placeholder="********"
                         autocomplete="new-password" v-model="form.passwordConfirm" :error="errors.passwordConfirm"
                         @input="validatePasswordConfirm" type="password" />
@@ -44,26 +43,32 @@ definePageMeta({
 });
 
 const client = useSupabaseClient();
-const toast = useToast()
+const toast = useToast();
 const router = useRouter();
 
+// Estado del formulario
 const form = reactive({
     email: '',
     password: '',
     passwordConfirm: ''
-})
+});
 
+// Estado de errores
 const errors = reactive({
     email: null,
     password: null,
     passwordConfirm: null
-})
+});
 
-const loading = ref(false)
-const checkingPassword = ref(false)
-const errorMsg = ref('')
-const isPasswordCompromised = ref(false)
+// Estado de carga y mensajes
+const loading = ref(false);
+const checkingPassword = ref(false);
+const errorMsg = ref('');
+const isPasswordCompromised = ref(false);
+const passwordCheckCache = reactive(new Map());
+const passwordCheckTimeout = ref(null);
 
+// Computar validez del formulario
 const isValid = computed(() => {
     return !errors.email &&
         !errors.password &&
@@ -71,153 +76,211 @@ const isValid = computed(() => {
         form.email &&
         form.password &&
         form.passwordConfirm &&
-        !isPasswordCompromised.value
-})
+        !isPasswordCompromised.value;
+});
 
+// Validación de email
 const validateEmail = () => {
     if (!form.email) {
-        errors.email = 'El email es requerido'
-        return false
+        errors.email = 'El email es requerido';
+        return false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
-        errors.email = 'El email debe incluir un @ y un . (punto)'
-        return false
+        errors.email = 'El email debe incluir un @ y un . (punto)';
+        return false;
     }
 
-    errors.email = null
-    return true
-}
+    errors.email = null;
+    return true;
+};
 
-const validatePassword = async () => {
+// Debounced password input handler
+const handlePasswordInput = () => {
+    // Limpiar timeout anterior si existe
+    if (passwordCheckTimeout.value) {
+        clearTimeout(passwordCheckTimeout.value);
+    }
+
+    // Primero validar reglas básicas
+    validatePassword();
+
+    // Si la contraseña es válida, verificar si está comprometida después de un delay
+    if (!errors.password && form.password && form.password.length >= 8) {
+        passwordCheckTimeout.value = setTimeout(async () => {
+            await checkPasswordCompromise();
+        }, 800); // 800ms debounce
+    }
+};
+
+// Validación básica de contraseña
+const validatePassword = () => {
     if (!form.password) {
-        errors.password = 'La contraseña es requerida'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña es requerida';
+        isPasswordCompromised.value = false;
+        return false;
     }
 
     if (form.password.length < 8) {
-        errors.password = 'La contraseña debe tener al menos 8 caracteres'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña debe tener al menos 8 caracteres';
+        isPasswordCompromised.value = false;
+        return false;
     }
 
     if (!/[a-z]/.test(form.password)) {
-        errors.password = 'La contraseña debe contener al menos una minúscula'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña debe contener al menos una minúscula';
+        isPasswordCompromised.value = false;
+        return false;
     }
 
     if (!/[A-Z]/.test(form.password)) {
-        errors.password = 'La contraseña debe contener al menos una mayúscula'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña debe contener al menos una mayúscula';
+        isPasswordCompromised.value = false;
+        return false;
     }
 
     if (!/[0-9]/.test(form.password)) {
-        errors.password = 'La contraseña debe contener al menos un número'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña debe contener al menos un número';
+        isPasswordCompromised.value = false;
+        return false;
     }
 
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password)) {
-        errors.password = 'La contraseña debe contener al menos un caracter especial'
-        isPasswordCompromised.value = false
-        return false
+        errors.password = 'La contraseña debe contener al menos un caracter especial';
+        isPasswordCompromised.value = false;
+        return false;
+    }
+
+    errors.password = null;
+
+    if (form.passwordConfirm) {
+        validatePasswordConfirm();
+    }
+
+    return true;
+};
+
+// Verificar si la contraseña está comprometida
+const checkPasswordCompromise = async () => {
+    if (!form.password || form.password.length < 8) return;
+
+    // Verificar caché
+    if (passwordCheckCache.has(form.password)) {
+        isPasswordCompromised.value = passwordCheckCache.get(form.password);
+
+        if (isPasswordCompromised.value) {
+            errors.password = 'Esta contraseña ha aparecido en filtraciones de datos. Por favor, utiliza una contraseña única.';
+        }
+
+        return;
     }
 
     try {
-        checkingPassword.value = true
-        isPasswordCompromised.value = await checkPasswordLeak(form.password)
+        checkingPassword.value = true;
+        isPasswordCompromised.value = await checkPasswordLeak(form.password);
+
+        // Guardar resultado en caché
+        passwordCheckCache.set(form.password, isPasswordCompromised.value);
 
         if (isPasswordCompromised.value) {
-            errors.password = 'Esta contraseña ha aparecido en filtraciones de datos. Por favor, utiliza una contraseña única.'
-            return false
+            errors.password = 'Esta contraseña ha aparecido en filtraciones de datos. Por favor, utiliza una contraseña única.';
         }
     } catch (error) {
-        console.error('Error al verificar contraseña:', error)
+        console.error('Error al verificar contraseña:', error);
     } finally {
-        checkingPassword.value = false
+        checkingPassword.value = false;
     }
+};
 
-    if (form.passwordConfirm) {
-        validatePasswordConfirm()
-    }
-
-    errors.password = null
-    return true
-}
-
+// Validación de confirmación de contraseña
 const validatePasswordConfirm = () => {
     if (!form.passwordConfirm) {
-        errors.passwordConfirm = 'La confirmación de contraseña es requerida'
-        return false
+        errors.passwordConfirm = 'La confirmación de contraseña es requerida';
+        return false;
     }
 
     if (form.passwordConfirm !== form.password) {
-        errors.passwordConfirm = 'Las contraseñas no coinciden'
-        return false
+        errors.passwordConfirm = 'Las contraseñas no coinciden';
+        return false;
     }
 
-    errors.passwordConfirm = null
-    return true
-}
+    errors.passwordConfirm = null;
+    return true;
+};
 
+// Verificar si una contraseña se ha filtrado (API haveibeenpwned)
 async function checkPasswordLeak(password) {
     try {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(password)
-        const hashBuffer = await crypto.subtle.digest('SHA-1', data)
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
 
-        const hashArray = Array.from(new Uint8Array(hashBuffer))
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-        const prefix = hashHex.substring(0, 5)
-        const suffix = hashHex.substring(5).toUpperCase()
+        const prefix = hashHex.substring(0, 5);
+        const suffix = hashHex.substring(5).toUpperCase();
 
-        const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`, {
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'NuxtSupabaseApp'
+            }
+        });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-            throw new Error('Error al consultar la API de contraseñas comprometidas')
+            console.warn('Error al consultar API de contraseñas comprometidas');
+            return false;
         }
 
-        const text = await response.text()
+        const text = await response.text();
 
         return text.split('\r\n').some(line => {
-            const [hashSuffix] = line.split(':')
-            return hashSuffix.toUpperCase() === suffix
-        })
+            const [hashSuffix] = line.split(':');
+            return hashSuffix.toUpperCase() === suffix;
+        });
     } catch (error) {
-        console.error('Error al verificar contraseña:', error)
-        return false
+        console.error('Error al verificar contraseña:', error);
+        return false;
     }
 }
 
+// Función de registro
 async function signUp() {
-    loading.value = true
-    errorMsg.value = ''
+    loading.value = true;
+    errorMsg.value = '';
 
-    const isEmailValid = validateEmail()
-    const isPasswordValid = await validatePassword()
-    const isPasswordConfirmValid = validatePasswordConfirm()
+    const isEmailValid = validateEmail();
+    const isPasswordValid = validatePassword();
+    const isPasswordConfirmValid = validatePasswordConfirm();
 
     if (!isEmailValid || !isPasswordValid || !isPasswordConfirmValid) {
-        loading.value = false
-        return
+        loading.value = false;
+        return;
     }
 
     try {
+        sessionStorage.setItem('lastRegisteredEmail', form.email);
+
         const { data, error } = await client.auth.signUp({
             email: form.email,
-            password: form.password
+            password: form.password,
+            options: {
+                emailRedirectTo: `${window.location.origin}${ROUTE_NAMES.LOGIN}`
+            }
         });
 
         if (error) throw error;
 
-        form.email = ''
-        form.password = ''
-        form.passwordConfirm = ''
+        form.email = '';
+        form.password = '';
+        form.passwordConfirm = '';
 
         toast.add({
             severity: 'success',
@@ -231,9 +294,15 @@ async function signUp() {
         }, 5000);
 
     } catch (error) {
-        errorMsg.value = error.message
+        errorMsg.value = error.message;
     } finally {
-        loading.value = false
+        loading.value = false;
     }
 }
+
+onUnmounted(() => {
+    if (passwordCheckTimeout.value) {
+        clearTimeout(passwordCheckTimeout.value);
+    }
+});
 </script>

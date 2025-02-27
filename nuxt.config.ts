@@ -3,7 +3,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   css: ['~/assets/main.css'],
-  modules: ["@primevue/nuxt-module", '@nuxt/image', '@nuxt/icon', '@pinia/nuxt', '@nuxt/fonts', '@nuxtjs/supabase'],
+
+  // Módulos
+  modules: [
+    "@primevue/nuxt-module",
+    '@nuxt/image',
+    '@nuxt/icon',
+    '@pinia/nuxt',
+    '@nuxt/fonts',
+    '@nuxtjs/supabase'
+  ],
+
+  // Configuración de Supabase
   supabase: {
     redirectOptions: {
       login: '/login',
@@ -15,8 +26,24 @@ export default defineNuxtConfig({
         '/forgot-password-confirmation',
         '/reset-password',
       ]
+    },
+    // Optimización de Supabase: reducir la tasa de sondeo para sesiones (menos peticiones Auth)
+    cookieOptions: {
+      maxAge: 60 * 60 * 8,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    },
+    clientOptions: {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      }
     }
   },
+
+  // Configuración de íconos
   icon: {
     size: '1rem',
     class: 'tablerIcon',
@@ -24,14 +51,22 @@ export default defineNuxtConfig({
       collections: ['tabler'],
     }
   },
+
+  // PrimeVue - Sólo cargar los componentes necesarios
   primevue: {
     components: {
-      include: ['Toast']
+      include: ['Toast', 'Button', 'Dialog', 'InputText', 'Password', 'ProgressSpinner', 'Drawer']
+    },
+    options: {
+      ripple: false,
+      unstyled: false
     }
   },
   plugins: [
-    { src: '~/plugins/datatables.js', mode: 'client' }
+    { src: '~/plugins/datatables.js', mode: 'client' },
+    { src: '~/plugins/preload-data.js', mode: 'client' }
   ],
+
   app: {
     head: {
       link: [
@@ -44,9 +79,62 @@ export default defineNuxtConfig({
           href: 'https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css'
         },
       ],
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'format-detection', content: 'telephone=no' }
+      ],
     },
   },
+
+  vite: {
+    optimizeDeps: {
+      include: ['primeflex', 'lodash', 'pinia']
+    },
+    build: {
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'primevue': ['primevue'],
+            'ui-components': ['~/components/ui'],
+            'vendors': ['lodash', 'pinia'],
+          }
+        }
+      }
+    },
+    server: {
+      fs: {
+        strict: false
+      }
+    }
+  },
+
+  // Configuración de build
   build: {
     transpile: ['datatables.net-vue3', 'datatables.net-dt']
   },
-})
+
+  // Optimizaciones de rendimiento
+  experimental: {
+    payloadExtraction: true,
+    crossOriginPrefetch: true,
+    viewTransition: true,
+    componentIslands: true
+  },
+
+  // Optimizaciones de caché
+  routeRules: {
+    '/assets/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    },
+    '/': {
+      prerender: true,
+      cache: {
+        maxAge: 60 * 60
+      }
+    }
+  }
+});

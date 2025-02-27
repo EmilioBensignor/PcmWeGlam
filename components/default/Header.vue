@@ -33,8 +33,10 @@ import { useRoute } from 'vue-router';
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
 
 const route = useRoute();
+const router = useRouter();
 const drawerMenu = ref(false);
 const routes = ROUTE_NAMES;
+const loggingOut = ref(false);
 
 const menu = [
     {
@@ -89,16 +91,23 @@ watch(() => route.path, () => {
     closeDrawer();
 });
 
-const client = useSupabaseClient();
-const router = useRouter();
-
 async function signOut() {
+    if (loggingOut.value) return;
+
+    loggingOut.value = true;
+
     try {
-        const { error } = await client.auth.signOut();
+        const supabase = useSupabaseClient();
+        const { error } = await supabase.auth.signOut();
         if (error) throw error;
+
+        localStorage.removeItem('lastLoginEmail');
+
         router.push(ROUTE_NAMES.LOGIN);
     } catch (error) {
-        console.error(error.message)
+        console.error('Error al cerrar sesión:', error.message);
+    } finally {
+        loggingOut.value = false;
     }
 }
 </script>
