@@ -2,7 +2,7 @@
     <main>
         <section class="w-full max-800 columnAlignCenter">
             <NuxtLink :to="ROUTE_NAMES.LOGIN" class="back rowCenter gap-2 align-self-start text-black no-underline">
-                <Icon name="mingcute:arrow-left-line" />
+                <Icon name="tabler:arrow-left" />
                 Volver a Iniciar sesión
             </NuxtLink>
             <h1>Restablecer contraseña</h1>
@@ -16,7 +16,7 @@
                         v-model="form.email" :error="errors.email" @input="validateEmail" />
                 </div>
                 <div class="error center" v-if="errorMsg">
-                    <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+                    <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
                     <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>

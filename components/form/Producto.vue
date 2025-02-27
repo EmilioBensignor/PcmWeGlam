@@ -29,7 +29,7 @@
                 <Select inputId="categoria" id="categoria" v-model="formData.categoria" :options="categorias"
                     optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría" class="w-full" />
                 <div class="error" v-if="errors.categoria">
-                    <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+                    <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
                     <p>{{ errors.categoria }}</p>
                 </div>
             </div>

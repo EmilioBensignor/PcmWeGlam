@@ -12,7 +12,7 @@
                         @input="validateConfirmPassword" />
                 </div>
                 <div class="error center" v-if="errorMsg">
-                    <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+                    <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
                     <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>

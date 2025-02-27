@@ -4,7 +4,7 @@
         <InputText :id="id" type="email" :value="modelValue" @input="$emit('update:modelValue', $event.target.value)"
             :placeholder="placeholder" :autocomplete="id" />
         <div class="error" v-if="error">
-            <Icon name="mingcute:alert-octagon-line" style="color: var(--color-red)" />
+            <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
             <span class="pi pi-exclamation-circle"></span>
             <p>{{ error }}</p>
         </div>
