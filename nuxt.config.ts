@@ -97,7 +97,6 @@ export default defineNuxtConfig({
         output: {
           manualChunks: {
             'primevue': ['primevue'],
-            'ui-components': ['~/components/ui'],
             'vendors': ['lodash', 'pinia'],
           }
         }
