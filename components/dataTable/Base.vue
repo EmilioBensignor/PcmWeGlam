@@ -100,65 +100,20 @@ export default {
     }
 }
 </script>
-
 <style>
-table.display th:nth-child(1),
-table.display td:nth-child(1) {
-    width: 5%;
-}
-
-table.display th:nth-child(2),
-table.display td:nth-child(2) {
-    width: 10%;
-}
-
-table.display th:nth-child(3),
-table.display td:nth-child(3) {
-    width: 30%;
-}
-
-table.display th:nth-child(4),
-table.display td:nth-child(4),
-table.display th:nth-child(5),
-table.display td:nth-child(5) {
-    width: 8%;
-}
-
-table.display th:nth-child(6),
-table.display td:nth-child(6) {
-    width: 8%;
-}
-
-table.display th:nth-child(7),
-table.display td:nth-child(7),
-table.display th:nth-child(8),
-table.display td:nth-child(8),
-table.display th:nth-child(9),
-table.display td:nth-child(9) {
-    width: 5%;
-    text-align: center;
-}
-
-table.display th:nth-child(10),
-table.display td:nth-child(10) {
-    width: 8%;
-}
-
-table.display th:nth-child(11),
-table.display td:nth-child(11),
-table.display th:nth-child(12),
-table.display td:nth-child(12) {
-    width: 4%;
-    text-align: center;
-}
-
-table.display th,
-table.display td {
+table.display th {
     white-space: nowrap;
 }
 
+table.display td:nth-child(1) {
+    min-width: 120px;
+}
+
+table.display td:nth-child(2) {
+    min-width: 100px;
+}
+
 table.display td:nth-child(3) {
-    white-space: normal;
-    overflow: hidden;
+    min-width: 350px;
 }
 </style>
