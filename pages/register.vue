@@ -7,6 +7,8 @@
                 <div class="formFieldsContainer">
                     <FormEmailField id="email" label="Correo electrónico" placeholder="stevejobs@gmail.com"
                         autocomplete="email" v-model="form.email" :error="errors.email" @input="validateEmail" />
+                </div>
+                <div class="formFieldsContainer">
                     <FormPasswordField id="password" label="Contraseña" placeholder="********"
                         autocomplete="new-password" v-model="form.password" :error="errors.password"
                         @input="handlePasswordInput" type="password" />
@@ -285,7 +287,7 @@ async function signUp() {
         toast.add({
             severity: 'success',
             summary: '¡Éxito!',
-            detail: 'Tu cuenta se ha creado con éxito. Revisa tu correo electrónico para verificar tu cuenta.',
+            detail: 'Tu cuenta se ha creado con éxito. Revisa tu correo electrónico para verificar tu cuenta. Esto puede tardar unos minutos.',
             life: 5000
         });
 

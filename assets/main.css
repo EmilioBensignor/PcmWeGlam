@@ -184,6 +184,7 @@ form .p-fileupload-basic .p-button {
     font-family: "Outfit", sans-serif !important;
     font-size: 1rem !important;
     font-weight: 400 !important;
+    text-align: center;
     text-decoration: none !important;
     color: var(--black-color);
     transition: all 0.3s !important;
