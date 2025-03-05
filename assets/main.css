@@ -668,7 +668,7 @@ nav .next {
 .p-toast {
     width: 100%;
     max-width: 270px;
-    top: 6.75rem !important;
+    top: 3rem !important;
     right: 0 !important;
     margin: 0 auto !important;
 }
@@ -790,6 +790,6 @@ nav .next {
     }
 
     .p-toast {
-        top: 8.25rem !important;
+        top: 4rem !important;
     }
 }
