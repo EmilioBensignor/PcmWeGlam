@@ -119,7 +119,7 @@ const handleSignIn = async () => {
     try {
         // Guardar el email en localStorage para futuras sesiones
         localStorage.setItem('lastLoginEmail', form.email);
-
+        errorMsg.value = '';
         const { error } = await client.auth.signInWithPassword({
             email: form.email,
             password: form.password,
@@ -128,11 +128,13 @@ const handleSignIn = async () => {
             }
         });
 
-        if (error) throw error;
+        if (error) {
+            errorMsg.value = handleSupabaseError(error);
+        }
 
         router.push(ROUTE_NAMES.HOME);
     } catch (error) {
-        errorMsg.value = error.message;
+        errorMsg.value = handleSupabaseError(error);
     } finally {
         loading.value = false;
     }

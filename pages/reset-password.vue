@@ -134,7 +134,9 @@ const handleResetPassword = async () => {
             password: form.password
         });
 
-        if (error) throw error;
+        if (error) {
+            errorMsg.value = handleSupabaseError(error);
+        };
 
         form.password = '';
         form.confirmPassword = '';
@@ -152,7 +154,7 @@ const handleResetPassword = async () => {
             });
         }, 3000);
     } catch (error) {
-        errorMsg.value = error.message || 'Error al restablecer la contraseña';
+        errorMsg.value = handleSupabaseError(error) || 'Error al restablecer la contraseña';
         passwordUpdateAttempted.value = false;
     } finally {
         loading.value = false;

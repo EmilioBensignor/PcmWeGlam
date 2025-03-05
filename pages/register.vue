@@ -63,7 +63,7 @@ const errors = reactive({
 });
 
 // Estado de carga y mensajes
-const loading = ref(true);
+const loading = ref(false);
 const checkingPassword = ref(false);
 const errorMsg = ref('');
 const isPasswordCompromised = ref(false);
@@ -278,7 +278,9 @@ async function signUp() {
             }
         });
 
-        if (error) throw error;
+        if (error) {
+            errorMsg.value = handleSupabaseError(error);
+        };
 
         form.email = '';
         form.password = '';
@@ -296,7 +298,7 @@ async function signUp() {
         }, 5000);
 
     } catch (error) {
-        errorMsg.value = error.message;
+        errorMsg.value = handleSupabaseError(error);
     } finally {
         loading.value = false;
     }

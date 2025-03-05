@@ -108,7 +108,9 @@ const handleForgotPassword = async () => {
             redirectTo: redirectUrl
         });
 
-        if (error) throw error;
+        if (error) {
+            errorMsg.value = handleSupabaseError(error);
+        };
 
         // Agregar email a caché para prevenir peticiones duplicadas
         emailRequestCache.value.add(cleanEmail);
@@ -123,7 +125,7 @@ const handleForgotPassword = async () => {
 
         resetForm();
     } catch (error) {
-        errorMsg.value = error.message || 'Ha ocurrido un error al restablecer la contraseña';
+        errorMsg.value = handleSupabaseError(error) || 'Ha ocurrido un error al restablecer la contraseña';
     } finally {
         loading.value = false;
     }
