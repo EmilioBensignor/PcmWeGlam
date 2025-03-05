@@ -195,6 +195,19 @@ form .p-fileupload-basic .p-button {
     padding: 0.75rem 3.125rem !important;
 }
 
+.loadingButton {
+    position: relative;
+}
+
+.loadingButton .p-icon-spin {
+    width: max-content;
+    position: absolute;
+    top: 35%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+}
+
 form .p-fileupload-basic .p-button {
     padding: 0.875rem;
 }

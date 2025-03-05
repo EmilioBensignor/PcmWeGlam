@@ -16,8 +16,8 @@
                     <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>
-                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton"
-                    label="Actualizar contraseña" type="submit" />
+                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton loadingButton"
+                    :label="loading ? '' : 'Actualizar contraseña'" type="submit" />
             </form>
         </section>
     </main>

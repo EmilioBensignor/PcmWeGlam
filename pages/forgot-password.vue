@@ -20,8 +20,8 @@
                     <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>
-                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton"
-                    label="Restablecer contraseña" type="submit" />
+                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton loadingButton"
+                    :label="loading ? '' : 'Restablecer contraseña'" type="submit" />
             </form>
         </section>
     </main>

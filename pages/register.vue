@@ -28,8 +28,8 @@
                     <Icon name="tabler:loader" style="color: var(--color-blue)" class="animate-spin" />
                     <p>Verificando la seguridad de tu contraseña...</p>
                 </div>
-                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton" label="Registrarse"
-                    type="submit" />
+                <Button :loading="loading" :class="{ active: isValid }" class="primaryButton loadingButton"
+                    :label="loading ? '' : 'Registrarse'" type="submit" />
             </form>
         </section>
     </main>
@@ -63,7 +63,7 @@ const errors = reactive({
 });
 
 // Estado de carga y mensajes
-const loading = ref(false);
+const loading = ref(true);
 const checkingPassword = ref(false);
 const errorMsg = ref('');
 const isPasswordCompromised = ref(false);
