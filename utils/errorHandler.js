@@ -14,7 +14,8 @@ const errorMessages = {
     'Row not found': 'No pudimos encontrar la información solicitada. Puede haber sido modificada o eliminada.',
     'Foreign key violation': 'No se puede realizar esta acción porque hay información relacionada. Intenta primero con otros elementos.',
     'Unique constraint violation': 'Ya existe información con estos datos. Por favor utiliza valores únicos.',
-    'Value too long for type': 'Uno de los campos contiene demasiados caracteres. Por favor acorta tu texto.'
+    'Value too long for type': 'Uno de los campos contiene demasiados caracteres. Por favor acorta tu texto.',
+    'New password should be different from the old password.': 'La nueva contraseña debe ser diferente a la anterior.',
 }
 
 export function handleSupabaseError(error) {
