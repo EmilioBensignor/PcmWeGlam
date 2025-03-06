@@ -270,11 +270,14 @@ async function signUp() {
     try {
         sessionStorage.setItem('lastRegisteredEmail', form.email);
 
+        const baseUrl = window.location.origin;
+        const loginPath = ROUTE_NAMES.LOGIN;
+
         const { data, error } = await client.auth.signUp({
             email: form.email,
             password: form.password,
             options: {
-                emailRedirectTo: window.location.origin + ROUTE_NAMES.LOGIN
+                emailRedirectTo: `${baseUrl}${loginPath}`
             }
         });
 
