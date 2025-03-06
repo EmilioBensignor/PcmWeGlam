@@ -130,23 +130,24 @@ const handleResetPassword = async () => {
 
         if (error) {
             errorMsg.value = handleSupabaseError(error);
-        };
+        } else {
+            form.password = '';
+            form.confirmPassword = '';
 
-        form.password = '';
-        form.confirmPassword = '';
-
-        toast.add({
-            severity: 'success',
-            summary: '¡Éxito!',
-            detail: 'Tu contraseña se ha restablecido con éxito.',
-            life: 3000
-        });
-
-        setTimeout(() => {
-            router.push({
-                path: ROUTE_NAMES.LOGIN,
+            toast.add({
+                severity: 'success',
+                summary: '¡Éxito!',
+                detail: 'Tu contraseña se ha restablecido con éxito.',
+                life: 3000
             });
-        }, 3000);
+
+            setTimeout(() => {
+                router.push({
+                    path: ROUTE_NAMES.LOGIN,
+                });
+            }, 3000);
+        }
+
     } catch (error) {
         errorMsg.value = handleSupabaseError(error) || 'Error al restablecer la contraseña';
         passwordUpdateAttempted.value = false;
