@@ -101,7 +101,11 @@ const handleForgotPassword = async () => {
     }
 
     try {
-        const redirectUrl = `${window.location.origin}${ROUTE_NAMES.RESET_PASSWORD}`;
+        const baseUrl = import.meta.env.PROD
+            ? 'https://pcm.weglam.com.ar'
+            : 'http://localhost:3000';
+
+        const redirectUrl = `${baseUrl}${ROUTE_NAMES.RESET_PASSWORD}`;
 
         const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
             redirectTo: redirectUrl
