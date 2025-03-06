@@ -64,12 +64,6 @@ const isValid = computed(() => {
 
 // Verificar token de restablecimiento al cargar el componente
 onMounted(async () => {
-    // Verificar si hay un hash en la URL (token de reset)
-    if (!route.hash || !route.hash.includes('type=recovery')) {
-        errorMsg.value = 'Enlace de restablecimiento inválido o expirado';
-        return;
-    }
-
     try {
         const { data, error } = await client.auth.getSession();
         if (error) {
