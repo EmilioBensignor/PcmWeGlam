@@ -73,12 +73,37 @@ onMounted(() => {
         sessionStorage.removeItem('lastRegisteredEmail');
     }
 
-    // Verificar si hay un hash en la URL (redirección de verificación de email)
-    if (route.hash && route.hash.includes('type=recovery')) {
-        // Extraer el email del hash si está disponible
-        const emailMatch = route.hash.match(/email=([^&]*)/);
-        if (emailMatch && emailMatch[1]) {
-            form.email = decodeURIComponent(emailMatch[1]);
+    // Verificar si hay un hash en la URL (redirección de verificación de email o recuperación)
+    if (route.hash) {
+        // Para recuperación de contraseña
+        if (route.hash.includes('type=recovery')) {
+            const emailMatch = route.hash.match(/email=([^&]*)/);
+            if (emailMatch && emailMatch[1]) {
+                form.email = decodeURIComponent(emailMatch[1]);
+            }
+
+            toast.add({
+                severity: 'info',
+                summary: 'Restablecimiento de contraseña',
+                detail: 'Puedes establecer una nueva contraseña ahora.',
+                life: 5000
+            });
+        }
+
+        // Para confirmación de email
+        if (route.hash.includes('type=signup') || route.hash.includes('type=email_change')) {
+            toast.add({
+                severity: 'success',
+                summary: '¡Email verificado!',
+                detail: 'Tu email ha sido verificado correctamente. Ahora puedes iniciar sesión.',
+                life: 5000
+            });
+
+            // También podrías intentar extraer el email si está disponible
+            const emailMatch = route.hash.match(/email=([^&]*)/);
+            if (emailMatch && emailMatch[1]) {
+                form.email = decodeURIComponent(emailMatch[1]);
+            }
         }
     }
 });

@@ -274,7 +274,7 @@ async function signUp() {
             email: form.email,
             password: form.password,
             options: {
-                emailRedirectTo: `${window.location.origin}${ROUTE_NAMES.LOGIN}`
+                emailRedirectTo: window.location.origin + ROUTE_NAMES.LOGIN
             }
         });
 
