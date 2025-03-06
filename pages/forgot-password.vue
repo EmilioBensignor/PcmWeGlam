@@ -101,8 +101,7 @@ const handleForgotPassword = async () => {
     }
 
     try {
-        // Configurar URL de redirección absoluta
-        const redirectUrl = new URL(ROUTE_NAMES.RESET_PASSWORD, window.location.origin).toString();
+        const redirectUrl = `${window.location.origin}${ROUTE_NAMES.RESET_PASSWORD}`;
 
         const { error } = await client.auth.resetPasswordForEmail(cleanEmail, {
             redirectTo: redirectUrl
