@@ -71,7 +71,8 @@ const tableColumns = [
         render: (data) => `$${Number(data).toFixed(2)}`
     },
     {
-        data: 'categoria.nombre',
+        data: 'categoria',
+        render: (data) => data?.nombre || 'Sin categoría'
     },
     {
         data: 'destacado',
