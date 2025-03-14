@@ -25,6 +25,8 @@ const initialFormData = {
     titulo: '',
     descripcion: '',
     costo_dolar: '',
+    cantidad_bulto: '',
+    cantidad_minima: '',
     categoria: null,
     destacado: false,
     mas_vendido: false,

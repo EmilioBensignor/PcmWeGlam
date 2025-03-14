@@ -24,6 +24,13 @@
         </div>
 
         <div class="formFieldsContainer">
+            <FormTextField id="cantidad_bulto" label="Cantidad por bulto" v-model="formData.cantidad_bulto"
+                placeholder="6" :error="errors.cantidad_bulto" />
+            <FormTextField id="cantidad_minima" label="Cantidad mínima" type="number"
+                v-model="formData.cantidad_minima" :error="errors.cantidad_minima" placeholder="1" />
+        </div>
+
+        <div class="formFieldsContainer">
             <div class="formField column">
                 <label for="categoria">Categoría*</label>
                 <Select inputId="categoria" id="categoria" v-model="formData.categoria" :options="categorias"
@@ -80,6 +87,8 @@ const formData = reactive({
     titulo: props.initialData.titulo || '',
     descripcion: props.initialData.descripcion || '',
     costo_dolar: String(props.initialData.costo_dolar || ''),
+    cantidad_bulto: props.initialData.cantidad_bulto || '',
+    cantidad_minima: props.initialData.cantidad_minima || '',
     categoria: props.initialData.categoria?.id || null,
     destacado: Boolean(props.initialData.destacado),
     mas_vendido: Boolean(props.initialData.mas_vendido),
@@ -92,6 +101,8 @@ const errors = reactive({
     titulo: null,
     descripcion: null,
     costo_dolar: null,
+    cantidad_bulto: null,
+    cantidad_minima: null,
     categoria: null,
     imagen: null
 })
@@ -117,6 +128,8 @@ const handleSubmit = async () => {
         const submitData = {
             ...formData,
             costo_dolar: Number(formData.costo_dolar),
+            cantidad_bulto: formData.cantidad_bulto ? Number(formData.cantidad_bulto) : null,
+            cantidad_minima: formData.cantidad_minima ? Number(formData.cantidad_minima) : null,
             imagen: newImage.value || currentImageUrl.value
         }
         emit('submit', submitData)

@@ -100,6 +100,8 @@ export const useProductosStore = defineStore('productos', {
                     titulo: productoData.titulo,
                     descripcion: productoData.descripcion,
                     costo_dolar: productoData.costo_dolar,
+                    cantidad_bulto: productoData.cantidad_bulto,
+                    cantidad_minima: productoData.cantidad_minima,
                     categoria: productoData.categoria,
                     destacado: productoData.destacado,
                     mas_vendido: productoData.mas_vendido,

@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, render } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { useRouter } from 'vue-router'
@@ -32,6 +32,9 @@ const router = useRouter()
 const productosStore = useProductosStore()
 const variablesStore = useVariablesStore()
 
+console.log(productosStore.getProductos);
+
+
 const deleteDialog = ref(false)
 const selectedItem = ref(null)
 const deletedItemName = ref('')
@@ -42,6 +45,8 @@ const headings = [
     'Descripción',
     'Costo dólar',
     'Precio',
+    'Cantidad por bulto',
+    'Cantidad mín.',
     'Categoría',
     'Destacado',
     'Más vendido',
@@ -69,6 +74,12 @@ const tableColumns = [
     {
         data: 'precio',
         render: (data) => `$${Number(data).toFixed(2)}`
+    },
+    {
+        data: 'cantidad_bulto',
+    },
+    {
+        data: 'cantidad_minima',
     },
     {
         data: 'categoria',

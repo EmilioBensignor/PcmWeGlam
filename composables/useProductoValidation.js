@@ -44,6 +44,20 @@ export const useProductoValidation = (formData, errors, isEditing = false) => {
             isValid = false
         }
 
+        if (formData.cantidad_bulto) {
+            if (isNaN(Number(formData.cantidad_bulto)) || Number(formData.cantidad_bulto) <= 0) {
+                errors.cantidad_bulto = 'Ingrese una cantidad válida mayor a 0'
+                isValid = false
+            }
+        }
+
+        if (formData.cantidad_minima) {
+            if (isNaN(Number(formData.cantidad_minima)) || Number(formData.cantidad_minima) <= 0) {
+                errors.cantidad_minima = 'Ingrese una cantidad válida mayor a 0'
+                isValid = false
+            }
+        }
+
         if (!formData.categoria) {
             errors.categoria = 'Seleccione una categoría'
             isValid = false
