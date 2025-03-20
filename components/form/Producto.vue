@@ -17,6 +17,11 @@
         </div>
 
         <div class="formFieldsContainer">
+            <FormTextField id="codigo" label="Código*" v-model="formData.codigo"
+                placeholder="EZ3000" :error="errors.codigo" />
+        </div>
+
+        <div class="formFieldsContainer">
             <FormTextField id="descripcion" label="Descripción*" v-model="formData.descripcion"
                 placeholder="Tender plegable de 3 plazas" :error="errors.descripcion" />
             <FormTextField id="costo_dolar" label="Costo en dólares*" type="number" step="0.01"
@@ -85,6 +90,7 @@ const newImage = ref(null)
 
 const formData = reactive({
     titulo: props.initialData.titulo || '',
+    codigo: props.initialData.codigo || '',
     descripcion: props.initialData.descripcion || '',
     costo_dolar: String(props.initialData.costo_dolar || ''),
     cantidad_bulto: props.initialData.cantidad_bulto || '',
@@ -99,6 +105,7 @@ const formData = reactive({
 
 const errors = reactive({
     titulo: null,
+    codigo: null,
     descripcion: null,
     costo_dolar: null,
     cantidad_bulto: null,

@@ -20,10 +20,20 @@ export const useProductoValidation = (formData, errors, isEditing = false) => {
         } else if (formData.titulo.length < 5) {
             errors.titulo = 'El título debe tener al menos 5 caracteres'
             isValid = false
-        } else if (formData.titulo.length > 20) {
-            errors.titulo = 'El título no puede exceder los 20 caracteres'
+        } else if (formData.titulo.length > 30) {
+            errors.titulo = 'El título no puede exceder los 30 caracteres'
             isValid = false
         }
+
+        if (!formData.codigo) {
+            errors.codigo = 'El código es requerido'
+            isValid = false
+        } else if (formData.codigo.length > 300) {
+            errors.codigo = 'El código no puede exceder los 300 caracteres'
+            isValid = false
+        }
+
+
 
         if (!formData.descripcion) {
             errors.descripcion = 'La descripción es requerida'

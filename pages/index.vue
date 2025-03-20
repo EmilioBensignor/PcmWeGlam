@@ -21,19 +21,14 @@
 import { ref, computed, onMounted, nextTick, render } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
-import { useRouter } from 'vue-router'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 
 definePageMeta({
     middleware: 'auth'
 })
 
-const router = useRouter()
 const productosStore = useProductosStore()
 const variablesStore = useVariablesStore()
-
-console.log(productosStore.getProductos);
-
 
 const deleteDialog = ref(false)
 const selectedItem = ref(null)
@@ -43,6 +38,7 @@ const headings = [
     'Título',
     'Imagen',
     'Descripción',
+    'Código',
     'Costo dólar',
     'Precio',
     'Cantidad por bulto',
@@ -67,6 +63,10 @@ const tableColumns = [
     {
         data: 'descripcion',
     },
+    {
+        data: 'codigo',
+    },
+
     {
         data: 'costo_dolar',
         render: (data) => `$${Number(data).toFixed(2)}`

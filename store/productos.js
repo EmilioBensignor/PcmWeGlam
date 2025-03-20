@@ -98,6 +98,7 @@ export const useProductosStore = defineStore('productos', {
 
                 const dataToInsert = {
                     titulo: productoData.titulo,
+                    codigo: productoData.codigo,
                     descripcion: productoData.descripcion,
                     costo_dolar: productoData.costo_dolar,
                     cantidad_bulto: productoData.cantidad_bulto,
