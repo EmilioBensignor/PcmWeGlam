@@ -5,7 +5,6 @@
             :placeholder="placeholder" :autocomplete="id" />
         <div class="error" v-if="error">
             <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
-            <span class="pi pi-exclamation-circle"></span>
             <p>{{ error }}</p>
         </div>
     </div>

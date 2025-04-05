@@ -13,7 +13,6 @@
                 </div>
                 <div class="error center" v-if="errorMsg">
                     <Icon name="tabler:alert-octagon" style="color: var(--color-red)" />
-                    <span class="pi pi-exclamation-circle"></span>
                     <p>{{ errorMsg }}</p>
                 </div>
                 <Button :loading="loading" :class="{ active: isValid }" class="primaryButton loadingButton"
