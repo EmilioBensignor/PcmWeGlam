@@ -126,7 +126,7 @@ const formattedProducts = computed(() => {
     return productos.value.map(product => ({
         ...product,
         imagen: product.imagen || null,
-        precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA
+        precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA * 1.21,
     }))
 })
 
