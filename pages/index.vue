@@ -23,10 +23,6 @@ import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 
-definePageMeta({
-    middleware: 'auth'
-})
-
 const productosStore = useProductosStore()
 const variablesStore = useVariablesStore()
 

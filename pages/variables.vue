@@ -42,10 +42,6 @@ import { useVariablesStore } from '~/store/variables'
 import { storeToRefs } from 'pinia'
 import { ref, computed } from 'vue'
 
-definePageMeta({
-    middleware: 'auth',
-})
-
 const store = useVariablesStore()
 const { variables, loading, error } = storeToRefs(store)
 const { $toast } = useNuxtApp()

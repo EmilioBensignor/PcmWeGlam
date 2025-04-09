@@ -13,10 +13,6 @@ import { useProductosStore } from '~/store/productos'
 import { useCategoriasStore } from '~/store/categorias'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 
-definePageMeta({
-    middleware: 'auth'
-})
-
 const productosStore = useProductosStore()
 const categoriasStore = useCategoriasStore()
 const toast = useToast()

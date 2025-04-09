@@ -9,14 +9,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useCategoriasStore } from '~/store/categorias'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
-
-definePageMeta({
-    middleware: 'auth'
-})
 
 const route = useRoute()
 const productosStore = useProductosStore()
