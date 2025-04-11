@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <main class="h-screen justify-content-center">
         <section class="w-full columnAlignCenter">
             <h1>¡Ups! Página no encontrada</h1>
             <p class="text-center">
@@ -12,7 +12,20 @@
 </template>
 
 <script setup>
-import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES';
+import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+
+const props = defineProps({
+    error: Object
+})
+
+if (props.error?.statusCode !== 404) {
+    console.error('❗️Nuxt captured error:', props.error)
+}
+
+useHead({
+    title: '404 - Página no encontrada',
+    meta: [{ name: 'robots', content: 'noindex, nofollow' }]
+})
 </script>
 
 <style scoped>
