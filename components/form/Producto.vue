@@ -37,7 +37,7 @@
 
         <div class="formFieldsContainer">
             <div class="formField column">
-                <label for="categoria">Categoría*</label>
+                <p for="categoria">Categoría*</p>
                 <Select inputId="categoria" id="categoria" v-model="formData.categoria" :options="categorias"
                     optionLabel="nombre" optionValue="id" placeholder="Seleccione una categoría" class="w-full" />
                 <div class="error" v-if="errors.categoria">
