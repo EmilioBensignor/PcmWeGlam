@@ -2,9 +2,18 @@
     <main class="relative max-w-screen">
         <section class="w-full columnAlignCenter">
             <h1>Productos</h1>
-            <NuxtLink :to="ROUTE_NAMES.PRODUCT_CREATE" class="primaryButton active">
-                Agregar nuevo
-            </NuxtLink>
+            <div class="buttons">
+                <NuxtLink :to="ROUTE_NAMES.PRODUCT_CREATE" class="primaryButton active">
+                    Agregar nuevo
+                </NuxtLink>
+                <button 
+                    @click="handleDownloadCatalog" 
+                    class="primaryButton"
+                    :disabled="!formattedProducts || formattedProducts.length === 0"
+                >
+                    Descargar Catálogo
+                </button>
+            </div>
             <div v-if="productosStore.isLoading" class="text-center">
                 <p>Cargando productos...</p>
             </div>
@@ -23,9 +32,11 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
+import { useCatalogDownload } from '~/composables/useCatalogDownload'
 
 const productosStore = useProductosStore()
 const variablesStore = useVariablesStore()
+const { downloadCatalog } = useCatalogDownload()
 
 const deleteDialog = ref(false)
 const selectedItem = ref(null)
@@ -180,6 +191,22 @@ const confirmDelete = async () => {
     }
 }
 
+const handleDownloadCatalog = async () => {
+    try {
+        if (!productos.value || productos.value.length === 0) {
+            $toast.error('No hay productos para descargar')
+            return
+        }
+
+        $toast.info('Generando catálogo PDF...')
+        await downloadCatalog(productos.value, variablesStore)
+        $toast.success('Catálogo PDF descargado correctamente')
+    } catch (error) {
+        console.error('Error al descargar catálogo:', error)
+        $toast.error('Error al descargar el catálogo')
+    }
+}
+
 onMounted(async () => {
     await Promise.all([
         variablesStore.fetchVariables(),
@@ -205,5 +232,17 @@ onMounted(async () => {
     background: #d1ecf1;
     padding: 2px 6px;
     border-radius: 3px;
+}
+
+.primaryButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
 }
 </style>
