@@ -119,7 +119,6 @@ const tableColumns = [
 
 const productos = computed(() => productosStore.getProductos)
 
-// Función para formatear precios
 const formatPrice = (price) => {
     return new Intl.NumberFormat('es-AR', {
         style: 'currency',
