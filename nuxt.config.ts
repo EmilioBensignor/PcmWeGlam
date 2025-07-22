@@ -6,7 +6,6 @@ export default defineNuxtConfig({
 
   // Módulos
   modules: [
-    "@primevue/nuxt-module",
     '@nuxt/image',
     '@nuxt/icon',
     '@pinia/nuxt',
@@ -51,17 +50,6 @@ export default defineNuxtConfig({
       collections: ['tabler'],
     }
   },
-
-  // PrimeVue - Sólo cargar los componentes necesarios
-  primevue: {
-    components: {
-      include: ['Toast', 'Button', 'Dialog', 'InputText', 'Password', 'ProgressSpinner', 'Drawer']
-    },
-    options: {
-      ripple: false,
-      unstyled: false
-    }
-  },
   plugins: [
     { src: '~/plugins/datatables.js', mode: 'client' },
     { src: '~/plugins/preload-data.js', mode: 'client' }
@@ -88,7 +76,7 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ['primeflex', 'pinia']
+      include: ['pinia']
     },
     build: {
       cssCodeSplit: true,
