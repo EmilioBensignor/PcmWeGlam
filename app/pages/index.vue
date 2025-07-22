@@ -31,7 +31,6 @@ const deleteDialog = ref(false)
 const selectedItem = ref(null)
 const deletedItemName = ref('')
 
-// Headings actualizados
 const headings = [
     'Título',
     'Imagen',
@@ -75,11 +74,11 @@ const tableColumns = [
     },
     {
         data: 'precio_sin_iva',
-        render: (data) => `$${Number(data).toFixed(2)}`
+        render: (data) => formatPrice(data)
     },
     {
         data: 'precio_con_iva',
-        render: (data) => `$${Number(data).toFixed(2)}`
+        render: (data) => formatPrice(data)
     },
     { data: 'cantidad_bulto' },
     { data: 'cantidad_minima' },
@@ -120,6 +119,16 @@ const tableColumns = [
 
 const productos = computed(() => productosStore.getProductos)
 
+// Función para formatear precios
+const formatPrice = (price) => {
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price)
+}
+
 const formattedProducts = computed(() => {
     if (!productos.value || !variablesStore.variables.length) return null
 
@@ -136,8 +145,8 @@ const formattedProducts = computed(() => {
                 esPersonalizado: product.indice_markup !== null,
                 valorDefault: variablesStore.GANANCIA
             },
-            precio_sin_iva: product.costo_dolar * markupActual,
-            precio_con_iva: product.costo_dolar * markupActual * 1.21,
+            precio_sin_iva: product.costo_dolar * variablesStore.DOLAR_WG * markupActual,
+            precio_con_iva: product.costo_dolar * variablesStore.DOLAR_WG * markupActual * 1.21,
             precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA * 1.21
         }
     })
