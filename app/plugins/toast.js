@@ -1,9 +1,6 @@
 import { useToast } from 'primevue/usetoast'
-// import ToastService from 'primevue/toastservice' // <- ya no necesitas esto
 
 export default defineNuxtPlugin((nuxtApp) => {
-    // nuxtApp.vueApp.use(ToastService) // <- quita esta línea
-
     const toast = useToast()
 
     return {
@@ -17,7 +14,30 @@ export default defineNuxtPlugin((nuxtApp) => {
                         life: 4000
                     })
                 },
-                // resto del código...
+                error: (message, title = 'Error') => {
+                    toast.add({
+                        severity: 'error',
+                        summary: title,
+                        detail: message,
+                        life: 4000
+                    })
+                },
+                warn: (message, title = 'Advertencia') => {
+                    toast.add({
+                        severity: 'warn',
+                        summary: title,
+                        detail: message,
+                        life: 4000
+                    })
+                },
+                info: (message, title = 'Información') => {
+                    toast.add({
+                        severity: 'info',
+                        summary: title,
+                        detail: message,
+                        life: 4000
+                    })
+                }
             }
         }
     }

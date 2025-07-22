@@ -11,14 +11,15 @@
             <DataTableBase v-else-if="formattedProducts" :headings="headings" :data="formattedProducts"
                 :columns="tableColumns" @edit="handleEdit" @delete="handleDelete" />
         </section>
-        <DialogConfirmation v-model:visible="deleteDialog"
+
+        <DialogConfirmation :visible="deleteDialog" @update:visible="deleteDialog = $event"
             :confirmation-message="`¿Estás seguro que quieres eliminar ${selectedItem?.titulo}?`"
             @confirm="confirmDelete" />
     </main>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, render } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useProductosStore } from '~/store/productos'
 import { useVariablesStore } from '~/store/variables'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
@@ -30,13 +31,16 @@ const deleteDialog = ref(false)
 const selectedItem = ref(null)
 const deletedItemName = ref('')
 
+// Headings actualizados
 const headings = [
     'Título',
     'Imagen',
     'Descripción',
     'Código',
     'Costo dólar',
-    'Precio',
+    'Índice Markup',
+    'Precio s/IVA',
+    'Precio c/IVA',
     'Cantidad por bulto',
     'Cantidad mín.',
     'Categoría',
@@ -49,34 +53,36 @@ const headings = [
 ]
 
 const tableColumns = [
-    {
-        data: 'titulo',
-    },
+    { data: 'titulo' },
     {
         data: 'imagen',
         render: (data) => data ? `<img src="${data}" alt="Producto" class="productImg" />` : 'Sin imagen'
     },
-    {
-        data: 'descripcion',
-    },
-    {
-        data: 'codigo',
-    },
-
+    { data: 'descripcion' },
+    { data: 'codigo' },
     {
         data: 'costo_dolar',
         render: (data) => `$${Number(data).toFixed(2)}`
     },
     {
-        data: 'precio',
+        data: 'markup_display',
+        render: (data, type, row) => {
+            const { valor, esPersonalizado } = data
+            const clase = esPersonalizado ? 'markup-personalizado' : 'markup-default'
+            const valorFormateado = parseFloat(valor.toFixed(4)).toString()
+            return `<span class="${clase}">${valorFormateado}</span>`
+        }
+    },
+    {
+        data: 'precio_sin_iva',
         render: (data) => `$${Number(data).toFixed(2)}`
     },
     {
-        data: 'cantidad_bulto',
+        data: 'precio_con_iva',
+        render: (data) => `$${Number(data).toFixed(2)}`
     },
-    {
-        data: 'cantidad_minima',
-    },
+    { data: 'cantidad_bulto' },
+    { data: 'cantidad_minima' },
     {
         data: 'categoria',
         render: (data) => data?.nombre || 'Sin categoría'
@@ -93,9 +99,7 @@ const tableColumns = [
         data: 'oculto',
         render: (data) => data ? '✔️' : ''
     },
-    {
-        data: 'promocion',
-    },
+    { data: 'promocion' },
     {
         data: null,
         render: (data, type, row) => `
@@ -119,11 +123,24 @@ const productos = computed(() => productosStore.getProductos)
 const formattedProducts = computed(() => {
     if (!productos.value || !variablesStore.variables.length) return null
 
-    return productos.value.map(product => ({
-        ...product,
-        imagen: product.imagen || null,
-        precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA * 1.21,
-    }))
+    return productos.value.map(product => {
+        const markupActual = product.indice_markup !== null ?
+            product.indice_markup :
+            variablesStore.GANANCIA
+
+        return {
+            ...product,
+            imagen: product.imagen || null,
+            markup_display: {
+                valor: markupActual,
+                esPersonalizado: product.indice_markup !== null,
+                valorDefault: variablesStore.GANANCIA
+            },
+            precio_sin_iva: product.costo_dolar * markupActual,
+            precio_con_iva: product.costo_dolar * markupActual * 1.21,
+            precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA * 1.21
+        }
+    })
 })
 
 const handleEdit = (id) => {
@@ -143,15 +160,11 @@ const confirmDelete = async () => {
     if (selectedItem.value) {
         try {
             deletedItemName.value = selectedItem.value.titulo
-
             await productosStore.deleteProducto(selectedItem.value.id)
-
             deleteDialog.value = false
             $toast.success(`El producto ${deletedItemName.value} ha sido eliminado`)
-
             selectedItem.value = null
             deletedItemName.value = ''
-
         } catch (error) {
             console.error('Error al eliminar producto:', error)
             $toast.error('Error al eliminar el producto')
@@ -171,3 +184,18 @@ onMounted(async () => {
     }
 })
 </script>
+
+<style scoped>
+.markup-personalizado {
+    background: #fff3cd;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.markup-default {
+    background: #d1ecf1;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+</style>

@@ -25,11 +25,9 @@ export const useProductosStore = defineStore('productos', {
             const { getFromCache, saveToCache } = useSupabaseCache();
             const cacheKey = 'productos_data';
 
-            // Intentar obtener datos desde caché
             const cachedData = getFromCache(cacheKey);
             if (cachedData) {
                 this.productos = cachedData;
-                // Refrescar en segundo plano
                 this.refreshProductosInBackground();
                 return;
             }
@@ -53,7 +51,6 @@ export const useProductosStore = defineStore('productos', {
                 if (error) throw error;
 
                 this.productos = data;
-                // Guardar en caché por 15 minutos
                 saveToCache(cacheKey, data, 15);
             } catch (error) {
                 this.error = error.message;
@@ -64,7 +61,6 @@ export const useProductosStore = defineStore('productos', {
             }
         },
 
-        // Método para actualizar en segundo plano sin indicadores de carga
         async refreshProductosInBackground() {
             try {
                 const supabase = useSupabaseClient();
@@ -108,18 +104,25 @@ export const useProductosStore = defineStore('productos', {
                     mas_vendido: productoData.mas_vendido,
                     oculto: productoData.oculto,
                     promocion: productoData.promocion,
-                    imagen: productoData.imagen
+                    imagen: productoData.imagen,
+                    indice_markup: productoData.indice_markup
                 };
 
                 const { data, error } = await supabase
                     .from('productos')
                     .insert(dataToInsert)
-                    .select()
+                    .select(`
+                        *,
+                        categoria:categorias (
+                            id,
+                            nombre,
+                            slug
+                        )
+                    `)
                     .single();
 
                 if (error) throw error;
 
-                // Actualizar caché 
                 const { getFromCache, saveToCache } = useSupabaseCache();
                 const cachedData = getFromCache('productos_data');
                 if (cachedData) {
@@ -145,14 +148,34 @@ export const useProductosStore = defineStore('productos', {
                 const supabase = useSupabaseClient();
                 const { data, error } = await supabase
                     .from('productos')
-                    .update(productoData)
+                    .update({
+                        titulo: productoData.titulo,
+                        codigo: productoData.codigo,
+                        descripcion: productoData.descripcion,
+                        costo_dolar: productoData.costo_dolar,
+                        cantidad_bulto: productoData.cantidad_bulto,
+                        cantidad_minima: productoData.cantidad_minima,
+                        categoria: productoData.categoria,
+                        destacado: productoData.destacado,
+                        mas_vendido: productoData.mas_vendido,
+                        oculto: productoData.oculto,
+                        promocion: productoData.promocion,
+                        imagen: productoData.imagen,
+                        indice_markup: productoData.indice_markup
+                    })
                     .eq('id', id)
-                    .select()
+                    .select(`
+                        *,
+                        categoria:categorias (
+                            id,
+                            nombre,
+                            slug
+                        )
+                    `)
                     .single();
 
                 if (error) throw error;
 
-                // Actualizar caché y estado local
                 const { getFromCache, saveToCache } = useSupabaseCache();
                 const cachedData = getFromCache('productos_data');
 
@@ -163,7 +186,6 @@ export const useProductosStore = defineStore('productos', {
                     saveToCache('productos_data', updatedCache, 15);
                 }
 
-                // Actualizar estado local
                 this.productos = this.productos.map(item =>
                     item.id === id ? data : item
                 );
@@ -179,11 +201,54 @@ export const useProductosStore = defineStore('productos', {
             }
         },
 
+        async updateIndiceMarkup(id, indiceMarkup) {
+            try {
+                const supabase = useSupabaseClient();
+                const { data, error } = await supabase
+                    .from('productos')
+                    .update({
+                        indice_markup: indiceMarkup
+                    })
+                    .eq('id', id)
+                    .select(`
+                        *,
+                        categoria:categorias (
+                            id,
+                            nombre,
+                            slug
+                        )
+                    `)
+                    .single();
+
+                if (error) throw error;
+
+                const { getFromCache, saveToCache } = useSupabaseCache();
+                const cachedData = getFromCache('productos_data');
+
+                if (cachedData) {
+                    const updatedCache = cachedData.map(item =>
+                        item.id === id ? data : item
+                    );
+                    saveToCache('productos_data', updatedCache, 15);
+                }
+
+                const index = this.productos.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    this.productos[index] = data;
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Error updating indice_markup:', error);
+                throw error;
+            }
+        },
+
         async deleteProducto(id) {
             this.loading = true;
             this.error = null;
             try {
-                if (!id || typeof id !== 'string' || !id.trim()) {
+                if (!id || (typeof id !== 'string' && typeof id !== 'number')) {
                     throw new Error('ID de producto inválido');
                 }
 
@@ -215,7 +280,6 @@ export const useProductosStore = defineStore('productos', {
 
                 if (deleteError) throw deleteError;
 
-                // Actualizar caché y estado local
                 const { getFromCache, saveToCache } = useSupabaseCache();
                 const cachedData = getFromCache('productos_data');
 
@@ -224,7 +288,6 @@ export const useProductosStore = defineStore('productos', {
                     saveToCache('productos_data', updatedCache, 15);
                 }
 
-                // Actualizar estado local
                 this.productos = this.productos.filter(item => item.id !== id);
 
                 this.lastAction = 'deleted';
@@ -278,12 +341,10 @@ export const useProductosStore = defineStore('productos', {
             const { subscribeToTable } = useRealtimeSubscription();
 
             return subscribeToTable('productos', (payload) => {
-                // Manejar actualizaciones en tiempo real
                 if (payload.eventType === 'INSERT') {
                     const newProducto = payload.new;
                     this.productos = [newProducto, ...this.productos];
 
-                    // Actualizar caché
                     const { getFromCache, saveToCache } = useSupabaseCache();
                     const cachedData = getFromCache('productos_data');
                     if (cachedData) {
@@ -296,7 +357,6 @@ export const useProductosStore = defineStore('productos', {
                         item.id === updatedProducto.id ? updatedProducto : item
                     );
 
-                    // Actualizar caché
                     const { getFromCache, saveToCache } = useSupabaseCache();
                     const cachedData = getFromCache('productos_data');
                     if (cachedData) {
@@ -310,7 +370,6 @@ export const useProductosStore = defineStore('productos', {
                     const deletedId = payload.old.id;
                     this.productos = this.productos.filter(item => item.id !== deletedId);
 
-                    // Actualizar caché
                     const { getFromCache, saveToCache } = useSupabaseCache();
                     const cachedData = getFromCache('productos_data');
                     if (cachedData) {

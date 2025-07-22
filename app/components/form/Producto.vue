@@ -17,22 +17,24 @@
         </div>
 
         <div class="formFieldsContainer">
-            <FormTextField id="codigo" label="Código*" v-model="formData.codigo"
-                placeholder="EZ3000" :error="errors.codigo" />
+            <FormTextField id="codigo" label="Código*" v-model="formData.codigo" placeholder="EZ3000"
+                :error="errors.codigo" />
+            <FormTextField id="descripcion" label="Descripción*" v-model="formData.descripcion"
+                placeholder="Tender plegable de 3 plazas" :error="errors.descripcion" />
         </div>
 
         <div class="formFieldsContainer">
-            <FormTextField id="descripcion" label="Descripción*" v-model="formData.descripcion"
-                placeholder="Tender plegable de 3 plazas" :error="errors.descripcion" />
             <FormTextField id="costo_dolar" label="Costo en dólares*" type="number" step="0.01"
                 v-model="formData.costo_dolar" :error="errors.costo_dolar" placeholder="$5.00" />
+            <FormTextField id="indice_markup" label="Índice Markup (opcional)" type="number" step="0.01"
+                v-model="formData.indice_markup" :error="errors.indice_markup" placeholder="1.4" />
         </div>
 
         <div class="formFieldsContainer">
             <FormTextField id="cantidad_bulto" label="Cantidad por bulto" v-model="formData.cantidad_bulto"
                 placeholder="6" :error="errors.cantidad_bulto" />
-            <FormTextField id="cantidad_minima" label="Cantidad mínima" type="number"
-                v-model="formData.cantidad_minima" :error="errors.cantidad_minima" placeholder="1" />
+            <FormTextField id="cantidad_minima" label="Cantidad mínima" type="number" v-model="formData.cantidad_minima"
+                :error="errors.cantidad_minima" placeholder="1" />
         </div>
 
         <div class="formFieldsContainer">
@@ -93,8 +95,9 @@ const formData = reactive({
     codigo: props.initialData.codigo || '',
     descripcion: props.initialData.descripcion || '',
     costo_dolar: String(props.initialData.costo_dolar || ''),
-    cantidad_bulto: props.initialData.cantidad_bulto || '',
-    cantidad_minima: props.initialData.cantidad_minima || '',
+    indice_markup: props.initialData.indice_markup ? String(props.initialData.indice_markup) : '',
+    cantidad_bulto: props.initialData.cantidad_bulto ? String(props.initialData.cantidad_bulto) : '',
+    cantidad_minima: props.initialData.cantidad_minima ? String(props.initialData.cantidad_minima) : '',
     categoria: props.initialData.categoria?.id || null,
     destacado: Boolean(props.initialData.destacado),
     mas_vendido: Boolean(props.initialData.mas_vendido),
@@ -108,6 +111,7 @@ const errors = reactive({
     codigo: null,
     descripcion: null,
     costo_dolar: null,
+    indice_markup: null,
     cantidad_bulto: null,
     cantidad_minima: null,
     categoria: null,
@@ -135,6 +139,7 @@ const handleSubmit = async () => {
         const submitData = {
             ...formData,
             costo_dolar: Number(formData.costo_dolar),
+            indice_markup: formData.indice_markup ? Number(formData.indice_markup) : null,
             cantidad_bulto: formData.cantidad_bulto ? Number(formData.cantidad_bulto) : null,
             cantidad_minima: formData.cantidad_minima ? Number(formData.cantidad_minima) : null,
             imagen: newImage.value || currentImageUrl.value
