@@ -33,7 +33,7 @@ const initialFormData = {
     oculto: false,
     promocion: '',
     imagen: null,
-    indice_markup: null
+    indice_markup: ''
 }
 
 const categorias = computed(() => categoriasStore.getCategorias || [])

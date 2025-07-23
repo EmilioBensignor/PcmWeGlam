@@ -76,13 +76,14 @@ export const useCatalogDownload = () => {
 
             const precioSinIva = product.costo_dolar * variables.DOLAR_WG * markupActual
             const precioConIva = precioSinIva * 1.21
-            let precio = product.costo_dolar * variables.DOLAR_WG * markupActual * 1.21
-            let precioOriginal = precio
             
-            // Aplicar descuento de promoción si existe
+            let precioSinIvaConDescuento = precioSinIva
+            let precioConIvaConDescuento = precioConIva
+            
             if (product.promocion && product.promocion > 0) {
                 const descuento = product.promocion / 100
-                precio = precio * (1 - descuento)
+                precioSinIvaConDescuento = precioSinIva * (1 - descuento)
+                precioConIvaConDescuento = precioSinIvaConDescuento * 1.21
             }
 
             if (product.imagen) {
@@ -132,15 +133,15 @@ export const useCatalogDownload = () => {
                 // Precios con descuento
                 pdf.setTextColor(220, 53, 69)
                 pdf.setFont('helvetica', 'bold')
-                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precioSinIva * (1 - product.promocion/100))} (sin IVA)`, 60, priceY + 9)
-                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precio)} (con IVA)`, 60, priceY + 14)
+                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precioSinIvaConDescuento)} (sin IVA)`, 60, priceY + 9)
+                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precioConIvaConDescuento)} (con IVA)`, 60, priceY + 14)
                 pdf.setFont('helvetica', 'normal')
                 pdf.setTextColor(0, 0, 0)
                 
                 priceY += 19
             } else {
                 pdf.text(`Precio sin IVA: ${formatPrice(precioSinIva)} (sin IVA)`, 60, priceY)
-                pdf.text(`Precio con IVA: ${formatPrice(precio)} (con IVA incluido)`, 60, priceY + 4)
+                pdf.text(`Precio con IVA: ${formatPrice(precioConIva)} (con IVA incluido)`, 60, priceY + 4)
                 priceY += 9
             }
 

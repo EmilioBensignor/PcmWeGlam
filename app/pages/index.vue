@@ -166,11 +166,10 @@ const formattedProducts = computed(() => {
         let precioSinIvaConDescuento = precioSinIva
         let precioConIvaConDescuento = precioConIva
         
-        // Aplicar descuento de promoción si existe
         if (product.promocion && product.promocion > 0) {
             const descuento = product.promocion / 100
             precioSinIvaConDescuento = precioSinIva * (1 - descuento)
-            precioConIvaConDescuento = precioConIva * (1 - descuento)
+            precioConIvaConDescuento = precioSinIvaConDescuento * 1.21
         }
 
         return {

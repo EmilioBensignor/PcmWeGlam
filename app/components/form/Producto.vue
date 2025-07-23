@@ -26,7 +26,7 @@
         <div class="formFieldsContainer">
             <FormTextField id="costo_dolar" label="Costo en dólares*" type="number" step="0.01"
                 v-model="formData.costo_dolar" :error="errors.costo_dolar" placeholder="$5.00" />
-            <FormTextField id="indice_markup" label="Índice Markup (opcional)" type="number" step="0.01"
+            <FormTextField id="indice_markup" label="Índice Markup" type="number" step="0.01"
                 v-model="formData.indice_markup" :error="errors.indice_markup" placeholder="1.4" />
         </div>
 
@@ -47,7 +47,7 @@
                     <p>{{ errors.categoria }}</p>
                 </div>
             </div>
-            <FormTextField id="promocion" label="Promoción" placeholder="30% OFF" type="text"
+            <FormTextField id="promocion" label="Promoción" placeholder="30" type="number"
                 v-model="formData.promocion" :error="errors.promocion" />
         </div>
 
@@ -102,7 +102,7 @@ const formData = reactive({
     destacado: Boolean(props.initialData.destacado),
     mas_vendido: Boolean(props.initialData.mas_vendido),
     oculto: Boolean(props.initialData.oculto),
-    promocion: props.initialData.promocion || '',
+    promocion: props.initialData.promocion ? String(props.initialData.promocion) : '',
     imagen: props.initialData.imagen || null
 })
 
@@ -115,6 +115,7 @@ const errors = reactive({
     cantidad_bulto: null,
     cantidad_minima: null,
     categoria: null,
+    promocion: null,
     imagen: null
 })
 
@@ -142,6 +143,7 @@ const handleSubmit = async () => {
             indice_markup: formData.indice_markup ? Number(formData.indice_markup) : null,
             cantidad_bulto: formData.cantidad_bulto ? Number(formData.cantidad_bulto) : null,
             cantidad_minima: formData.cantidad_minima ? Number(formData.cantidad_minima) : null,
+            promocion: formData.promocion ? Number(formData.promocion) : null,
             imagen: newImage.value || currentImageUrl.value
         }
         emit('submit', submitData)

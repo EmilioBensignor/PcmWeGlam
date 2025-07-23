@@ -54,6 +54,20 @@ export const useProductoValidation = (formData, errors, isEditing = false) => {
             isValid = false
         }
 
+        if (formData.indice_markup) {
+            if (isNaN(Number(formData.indice_markup)) || Number(formData.indice_markup) <= 0) {
+                errors.indice_markup = 'Ingrese un índice markup válido mayor a 0'
+                isValid = false
+            }
+        }
+
+        if (formData.promocion) {
+            if (isNaN(Number(formData.promocion)) || Number(formData.promocion) < 0 || Number(formData.promocion) > 100) {
+                errors.promocion = 'Ingrese un porcentaje válido entre 0 y 100'
+                isValid = false
+            }
+        }
+
         if (formData.cantidad_bulto) {
             if (isNaN(Number(formData.cantidad_bulto)) || Number(formData.cantidad_bulto) <= 0) {
                 errors.cantidad_bulto = 'Ingrese una cantidad válida mayor a 0'
