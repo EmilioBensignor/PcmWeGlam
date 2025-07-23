@@ -56,6 +56,20 @@
                 v-model="formData[field.id]" data-on="Activado" data-off="Desactivado" />
         </div>
 
+        <!-- Vista previa de precios -->
+        <div v-if="pricePreview" class="price-preview">
+            <h3>Vista previa de precios:</h3>
+            <div class="price-container">
+                <p><strong>Precio sin IVA:</strong> {{ formatPrice(pricePreview.precioSinIva) }}</p>
+                <p><strong>Precio con IVA:</strong> {{ formatPrice(pricePreview.precioConIva) }}</p>
+                <div v-if="pricePreview.tieneDescuento" class="discount-prices">
+                    <p style="color: var(--color-red);"><strong>Con {{ formData.promocion }}% de descuento:</strong></p>
+                    <p style="color: var(--color-red);">• Sin IVA: {{ formatPrice(pricePreview.precioSinIvaConDescuento) }}</p>
+                    <p style="color: var(--color-red);">• Con IVA: {{ formatPrice(pricePreview.precioConIvaConDescuento) }}</p>
+                </div>
+            </div>
+        </div>
+
         <div class="formActions wrapCenter">
             <NuxtLink :to="ROUTE_NAMES.HOME" class="primaryButton">Cancelar</NuxtLink>
             <button type="submit" class="primaryButton active">
@@ -66,9 +80,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useVariablesStore } from '~/store/variables'
 import { ROUTE_NAMES } from '~/constants/ROUTE_NAMES'
 import { useProductoValidation } from '~/composables/useProductoValidation'
+
+const variablesStore = useVariablesStore()
 
 const props = defineProps({
     initialData: {
@@ -81,6 +98,10 @@ const props = defineProps({
     },
     categorias: {
         type: Array,
+        required: true
+    },
+    gananciaDefault: {
+        type: Number,
         required: true
     }
 })
@@ -125,6 +146,48 @@ const switchFields = [
     { id: 'oculto', label: 'Oculto' }
 ]
 
+// Vista previa de precios
+const pricePreview = computed(() => {
+    if (!formData.costo_dolar || !variablesStore.DOLAR_WG) {
+        return null
+    }
+
+    const costoDolar = Number(formData.costo_dolar)
+    if (isNaN(costoDolar) || costoDolar <= 0) {
+        return null
+    }
+
+    const markup = formData.indice_markup ? Number(formData.indice_markup) : props.gananciaDefault
+    const precioSinIva = costoDolar * variablesStore.DOLAR_WG * markup
+    const precioConIva = precioSinIva * 1.21
+
+    let precioSinIvaConDescuento = precioSinIva
+    let precioConIvaConDescuento = precioConIva
+
+    if (formData.promocion && Number(formData.promocion) > 0) {
+        const descuento = Number(formData.promocion) / 100
+        precioSinIvaConDescuento = precioSinIva * (1 - descuento)
+        precioConIvaConDescuento = precioSinIvaConDescuento * 1.21
+    }
+
+    return {
+        precioSinIva,
+        precioConIva,
+        precioSinIvaConDescuento,
+        precioConIvaConDescuento,
+        tieneDescuento: formData.promocion && Number(formData.promocion) > 0
+    }
+})
+
+const formatPrice = (price) => {
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(price)
+}
+
 const { validateForm, clearErrors } = useProductoValidation(formData, errors, props.isEditing)
 
 const removeImage = () => {
@@ -160,6 +223,31 @@ const handleSubmit = async () => {
 
 .switchersContainer>div {
     width: max-content;
+}
+
+.price-preview {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+}
+
+.price-preview h3 {
+    margin: 0 0 12px 0;
+    color: #495057;
+    font-size: 16px;
+}
+
+.price-container p {
+    margin: 6px 0;
+    font-size: 14px;
+}
+
+.discount-prices {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #dee2e6;
 }
 
 @media (width >=992px) {

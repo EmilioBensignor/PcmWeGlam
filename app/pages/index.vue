@@ -95,7 +95,7 @@ const tableColumns = [
     },
     {
         data: 'precio_sin_iva_con_descuento',
-        render: (data) => formatPrice(data)
+        render: (data, type, row) => row.promocion && row.promocion > 0 ? formatPrice(data) : ''
     },
     {
         data: 'precio_con_iva',
@@ -103,7 +103,7 @@ const tableColumns = [
     },
     {
         data: 'precio_con_iva_con_descuento',
-        render: (data) => formatPrice(data)
+        render: (data, type, row) => row.promocion && row.promocion > 0 ? formatPrice(data) : ''
     },
     { data: 'cantidad_bulto' },
     { data: 'cantidad_minima' },
