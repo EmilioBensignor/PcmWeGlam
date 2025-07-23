@@ -76,7 +76,14 @@ export const useCatalogDownload = () => {
 
             const precioSinIva = product.costo_dolar * variables.DOLAR_WG * markupActual
             const precioConIva = precioSinIva * 1.21
-            const precio = product.costo_dolar * variables.DOLAR_WG * variables.GANANCIA * 1.21
+            let precio = product.costo_dolar * variables.DOLAR_WG * markupActual * 1.21
+            let precioOriginal = precio
+            
+            // Aplicar descuento de promoción si existe
+            if (product.promocion && product.promocion > 0) {
+                const descuento = product.promocion / 100
+                precio = precio * (1 - descuento)
+            }
 
             if (product.imagen) {
                 try {
@@ -98,17 +105,46 @@ export const useCatalogDownload = () => {
 
             const productInfo = [
                 `Código: ${product.codigo || 'N/A'}`,
-                `Precio sin IVA: ${formatPrice(precioSinIva)}`,
-                `Precio con IVA: ${formatPrice(precioConIva)}`,
-                `Cantidad por bulto: ${product.cantidad_bulto || 'N/A'}`,
-                `Precio: ${formatPrice(precio)}`
+                `Cantidad por bulto: ${product.cantidad_bulto || 'N/A'}`
             ]
 
             productInfo.forEach((info, index) => {
                 pdf.text(info, 60, yPosition + 16 + (index * 4))
             })
 
-            let currentY = yPosition + 36
+            let priceY = yPosition + 24
+
+            // Mostrar precios con o sin descuento
+            if (product.promocion && product.promocion > 0) {
+                // Precio sin IVA original tachado
+                pdf.setFontSize(9)
+                pdf.setTextColor(128, 128, 128)
+                pdf.text(`Precio sin IVA: ${formatPrice(precioSinIva)}`, 60, priceY)
+                let textWidth = pdf.getTextWidth(`Precio sin IVA: ${formatPrice(precioSinIva)}`)
+                pdf.setDrawColor(128, 128, 128)
+                pdf.line(60, priceY - 1, 60 + textWidth, priceY - 1)
+                
+                // Precio con IVA original tachado
+                pdf.text(`Precio con IVA: ${formatPrice(precioConIva)}`, 60, priceY + 4)
+                textWidth = pdf.getTextWidth(`Precio con IVA: ${formatPrice(precioConIva)}`)
+                pdf.line(60, priceY + 3, 60 + textWidth, priceY + 3)
+                
+                // Precios con descuento
+                pdf.setTextColor(220, 53, 69)
+                pdf.setFont('helvetica', 'bold')
+                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precioSinIva * (1 - product.promocion/100))} (sin IVA)`, 60, priceY + 9)
+                pdf.text(`Precio con ${product.promocion}% descuento: ${formatPrice(precio)} (con IVA)`, 60, priceY + 14)
+                pdf.setFont('helvetica', 'normal')
+                pdf.setTextColor(0, 0, 0)
+                
+                priceY += 19
+            } else {
+                pdf.text(`Precio sin IVA: ${formatPrice(precioSinIva)} (sin IVA)`, 60, priceY)
+                pdf.text(`Precio con IVA: ${formatPrice(precio)} (con IVA incluido)`, 60, priceY + 4)
+                priceY += 9
+            }
+
+            let currentY = priceY + 4
 
             if (product.descripcion) {
                 const splitDescription = pdf.splitTextToSize(product.descripcion, 130)

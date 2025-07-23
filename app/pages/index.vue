@@ -49,15 +49,17 @@ const headings = [
     'Código',
     'Costo dólar',
     'Índice Markup',
+    'Promoción',
     'Precio s/IVA',
+    'Descuento s/IVA',
     'Precio c/IVA',
+    'Descuento c/IVA',
     'Cantidad por bulto',
     'Cantidad mín.',
     'Categoría',
     'Destacado',
     'Más vendido',
     'Oculto',
-    'Promoción',
     'Editar',
     'Eliminar'
 ]
@@ -84,11 +86,23 @@ const tableColumns = [
         }
     },
     {
+        data: 'promocion',
+        render: (data) => data && data > 0 ? `${data}%` : ''
+    },
+    {
         data: 'precio_sin_iva',
         render: (data) => formatPrice(data)
     },
     {
+        data: 'precio_sin_iva_con_descuento',
+        render: (data) => formatPrice(data)
+    },
+    {
         data: 'precio_con_iva',
+        render: (data) => formatPrice(data)
+    },
+    {
+        data: 'precio_con_iva_con_descuento',
         render: (data) => formatPrice(data)
     },
     { data: 'cantidad_bulto' },
@@ -109,7 +123,6 @@ const tableColumns = [
         data: 'oculto',
         render: (data) => data ? '✔️' : ''
     },
-    { data: 'promocion' },
     {
         data: null,
         render: (data, type, row) => `
@@ -147,6 +160,19 @@ const formattedProducts = computed(() => {
             product.indice_markup :
             variablesStore.GANANCIA
 
+        let precioSinIva = product.costo_dolar * variablesStore.DOLAR_WG * markupActual
+        let precioConIva = precioSinIva * 1.21
+        
+        let precioSinIvaConDescuento = precioSinIva
+        let precioConIvaConDescuento = precioConIva
+        
+        // Aplicar descuento de promoción si existe
+        if (product.promocion && product.promocion > 0) {
+            const descuento = product.promocion / 100
+            precioSinIvaConDescuento = precioSinIva * (1 - descuento)
+            precioConIvaConDescuento = precioConIva * (1 - descuento)
+        }
+
         return {
             ...product,
             imagen: product.imagen || null,
@@ -155,9 +181,11 @@ const formattedProducts = computed(() => {
                 esPersonalizado: product.indice_markup !== null,
                 valorDefault: variablesStore.GANANCIA
             },
-            precio_sin_iva: product.costo_dolar * variablesStore.DOLAR_WG * markupActual,
-            precio_con_iva: product.costo_dolar * variablesStore.DOLAR_WG * markupActual * 1.21,
-            precio: product.costo_dolar * variablesStore.DOLAR_WG * variablesStore.GANANCIA * 1.21
+            precio_sin_iva: precioSinIva,
+            precio_con_iva: precioConIva,
+            precio_sin_iva_con_descuento: precioSinIvaConDescuento,
+            precio_con_iva_con_descuento: precioConIvaConDescuento,
+            precio: precioConIvaConDescuento
         }
     })
 })
