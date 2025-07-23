@@ -47,8 +47,8 @@
                     <p>{{ errors.categoria }}</p>
                 </div>
             </div>
-            <FormTextField id="promocion" label="Promoción" placeholder="30" type="number"
-                v-model="formData.promocion" :error="errors.promocion" />
+            <FormTextField id="promocion" label="Promoción" placeholder="30" type="number" v-model="formData.promocion"
+                :error="errors.promocion" />
         </div>
 
         <div class="formFieldsContainer switchersContainer">
@@ -56,16 +56,18 @@
                 v-model="formData[field.id]" data-on="Activado" data-off="Desactivado" />
         </div>
 
-        <!-- Vista previa de precios -->
         <div v-if="pricePreview" class="price-preview">
-            <h3>Vista previa de precios:</h3>
+            <p>Vista previa de precios:</p>
             <div class="price-container">
-                <p><strong>Precio sin IVA:</strong> {{ formatPrice(pricePreview.precioSinIva) }}</p>
-                <p><strong>Precio con IVA:</strong> {{ formatPrice(pricePreview.precioConIva) }}</p>
-                <div v-if="pricePreview.tieneDescuento" class="discount-prices">
-                    <p style="color: var(--color-red);"><strong>Con {{ formData.promocion }}% de descuento:</strong></p>
-                    <p style="color: var(--color-red);">• Sin IVA: {{ formatPrice(pricePreview.precioSinIvaConDescuento) }}</p>
-                    <p style="color: var(--color-red);">• Con IVA: {{ formatPrice(pricePreview.precioConIvaConDescuento) }}</p>
+                <div>
+                    <p><strong>Precio sin IVA:</strong> {{ formatPrice(pricePreview.precioSinIva) }}</p>
+                    <p><strong>Precio con IVA:</strong> {{ formatPrice(pricePreview.precioConIva) }}</p>
+                </div>
+                <div v-if="pricePreview.tieneDescuento">
+                    <p style="color: var(--color-red);">{{ formData.promocion }}% descuento sin IVA: {{ formatPrice(pricePreview.precioSinIvaConDescuento)
+                        }}</p>
+                    <p style="color: var(--color-red);">{{ formData.promocion }}% descuento con IVA: {{ formatPrice(pricePreview.precioConIvaConDescuento)
+                        }}</p>
                 </div>
             </div>
         </div>
@@ -146,7 +148,6 @@ const switchFields = [
     { id: 'oculto', label: 'Oculto' }
 ]
 
-// Vista previa de precios
 const pricePreview = computed(() => {
     if (!formData.costo_dolar || !variablesStore.DOLAR_WG) {
         return null
@@ -226,6 +227,9 @@ const handleSubmit = async () => {
 }
 
 .price-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 8px;
@@ -233,21 +237,13 @@ const handleSubmit = async () => {
     margin: 20px 0;
 }
 
-.price-preview h3 {
-    margin: 0 0 12px 0;
-    color: #495057;
-    font-size: 16px;
+.price-container {
+    display: flex;
+    gap: 1rem;
 }
 
 .price-container p {
     margin: 6px 0;
-    font-size: 14px;
-}
-
-.discount-prices {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #dee2e6;
 }
 
 @media (width >=992px) {
